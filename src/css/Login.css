@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
+.loginFrame{
+    background-color: #d4d4d44b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.loginFrame > div{
+    background-color: white;
+    box-shadow: 0px 0px 20px rgb(141, 141, 141);
+    position: relative;
+    height: 720px;
+    width: 1280px;
+}
+
+/* 이미지 위에 그라데이션 박스 */
+.bannerBox{
+    background: linear-gradient(
+        270deg,
+        rgba(217, 217, 217, 0.4) 0%,
+        rgba(28, 28, 28, 0.6) 50%,
+        rgba(26, 26, 26, 0.8) 100%
+    );
+    height: 720px;
+    width: 640px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+/* 배너이미지 */
+.loginFrame .bannerImg{
+    height: 720px;
+    width: 640px;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* 배너이미지 위 SERENDY 타이틀 */
+.title{
+    color: #f1f1f1;
+    font-size: 64px;
+    font-weight: 600;
+    position: absolute;
+    top: 283px;
+    left: 180px;
+    z-index: 2;
+    font-family: 'Playfair Display', serif;
+}
+
+/* 배너이미지 위 슬로건 */
+.slogan{
+    color: #e4e4e4;
+    font-size: 20px;
+    font-weight: 400;
+    position: absolute;
+    top: 359px;
+    left: 195px;
+    z-index: 2;
+}
+
+/* 로그인 요소들을 배치하기 위한 박스 */
+.loginFormBox {
+    position: absolute;
+    top: 50%;
+    left: 75%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 로그인 텍스트 */
+.loginFormBox > div{
+    position: static;
+    color: #000000;
+    font-size: 26.7px;
+    font-weight: 500;
+}
+
+/* 인풋태그 */
+.loginFormBox > input{
+    position: static;
+    height: 47px;
+    width: 255px;
+    border: 1.33px solid #c4c4c4;
+    border-radius: 6.67px;
+    padding-left: 15px;
+    box-sizing: border-box;
+    font-size: 19px;
+    font-weight: 600;
+    color: #464646;
+}
+
+.loginFormBox > input::placeholder{
+    color: #bebebe;
+}
+
+/* 로그인 버튼 */
+.loginFormBox > button{
+    position: static;
+    height: 47px;
+    width: 255px;
+    background-color: #000000;
+    border-radius: 7px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* 회원가입 버튼 */
+.loginFrame a{
+    color: #000000;
+    font-size: 16px;
+    font-weight: 400;
+    position: absolute;
+    top: 485px;
+    left: 1027px;
+    text-decoration: underline;
+}

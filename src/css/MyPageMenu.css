@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
+.myPageFrame{
+    background-color: #d4d4d44b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.myPageFrame > div{
+    background-color: white;
+    box-shadow: 0px 0px 20px rgb(141, 141, 141);
+    position: relative;
+    height: 720px;
+    width: 1280px;
+}
+
+.bannerBox{
+    background: linear-gradient(
+        270deg,
+        rgba(217, 217, 217, 0.4) 0%,
+        rgba(28, 28, 28, 0.6) 50%,
+        rgba(26, 26, 26, 0.8) 100%
+    );
+    height: 720px;
+    width: 640px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+.myPageFrame .bannerImg{
+    height: 720px;
+    width: 640px;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.title{
+    color: #f1f1f1;
+    font-size: 64px;
+    font-weight: 600;
+    position: absolute;
+    top: 283px;
+    left: 180px;
+    z-index: 2;
+    font-family: 'Playfair Display', serif;
+}
+
+.slogan{
+    color: #e4e4e4;
+    font-size: 20px;
+    font-weight: 400;
+    position: absolute;
+    top: 359px;
+    left: 195px;
+    z-index: 2;
+}
+
+.myPageMenuBox{
+    position: absolute;
+    top: 50%;
+    left: 75%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.myPageMenuTxt{
+    position: static;
+    color: #000000;
+    font-size: 26.7px;
+    font-weight: 500;
+}
+
+.mypageLink{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 18.7px;
+    font-weight: 700;
+    color: #484848;
+    text-decoration: none;
+}
+
+.mpmVectorImg{
+    height: 10px;
+    width: 204px;
+}
+  
+.resetBtn{
+    margin-top: 20px;
+    background: linear-gradient(to right, #4a4a4a, #000000);
+    border: none;
+    height: 41px;
+    width: 205px;
+    border-radius: 20px;
+    color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 도움말 버튼 */
+.helpBtn {
+  position: absolute;
+  top: 255px;
+  right: -2px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 30;
+}
+
+.helpImg{
+  width: 20px;
+  height: 20px;
+}
+
+/* 추천 정보 리셋 버튼 */
+.resetBtn {
+  background: #000000;
+  border: none;
+  height: 40px;
+  width: 205px;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+/* 모달 오버레이 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* 모달 박스 */
+.modalBox {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 80%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  text-align: center;
+}
+
+/* 모달 닫기 버튼 */
+.modalCloseBtn {
+  margin-top: 20px;
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
