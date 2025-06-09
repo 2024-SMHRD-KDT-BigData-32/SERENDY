@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductInfoRepository extends JpaRepository<ProductInfo, Integer> {
 
-	List<ProductInfo> findByProdCateIn(List<String> prodCateList);
+	List<ProductInfo> findByProdCateIn(List<String> categories);
+	List<ProductInfo> findByProdCateAndDetail(String prodCate, String detail);
+	List<ProductInfo> findByProdCate(String prodCate);
 
 }
