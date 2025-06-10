@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/recommend")
@@ -23,13 +25,23 @@ public class RecommendationController {
         this.recommendationService = recommendationService;
     }
 
-    @Operation(summary = "상품 기반 유사 상품 추천", description = "특정 상품 ID를 기준으로 유사한 상품을 추천합니다.")
-    @GetMapping("/{productId}")
-    public ResponseEntity<List<ProductInfo>> recommendProducts(
-            @PathVariable("productId") Integer productId,
-            @RequestParam(defaultValue = "10") int topN) {
+    @Operation(summary = "여러 상품 기반 유사 상품 추천 (각 상품마다 topN개 뽑고, 최종 topM개 반환)")
+    @GetMapping("/multi")
+    public ResponseEntity<List<ProductInfo>> recommendProductsByMultipleIds(
+            @RequestParam("productIds") String productIdsStr,
+            @RequestParam(defaultValue = "2") int topN,                // 각 상품별 뽑을 유사상품 수
+            @RequestParam(defaultValue = "500") int finalTopCount) {   // 최종 결과에서 뽑을 개수
 
-        List<ProductInfo> recommended = recommendationService.getRecommendedProducts(productId, topN);
+        List<Integer> productIds = Arrays.stream(productIdsStr.split(","))
+                                         .map(String::trim)
+                                         .map(Integer::parseInt)
+                                         .toList();
+
+        List<ProductInfo> recommended = recommendationService.getTopNSimilarProductsFiltered(productIds, topN, finalTopCount);
         return ResponseEntity.ok(recommended);
     }
+
+
+
+
 }

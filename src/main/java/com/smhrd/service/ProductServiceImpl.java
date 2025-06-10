@@ -42,72 +42,66 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<ProductInfo> searchProducts(String keyword) {
-		try {
-			RestTemplate restTemplate = new RestTemplate();
+	    try {
+	        RestTemplate restTemplate = new RestTemplate();
 
-			// 1. NLU 서버 요청
-			String nluUrl = "http://localhost:8000/nlu";
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			HttpEntity<Map<String, String>> request = new HttpEntity<>(Map.of("text", keyword), headers);
-			ResponseEntity<Map> nluResponse = restTemplate.postForEntity(nluUrl, request, Map.class);
-			Map<String, Object> responseBody = nluResponse.getBody();
-			if (responseBody == null || !responseBody.containsKey("fields")) {
-				return List.of();
-			}
+	        // 1. NLU 서버 요청
+	        String nluUrl = "http://localhost:8000/nlu";
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.APPLICATION_JSON);
+	        HttpEntity<Map<String, String>> request = new HttpEntity<>(Map.of("text", keyword), headers);
+	        ResponseEntity<Map> nluResponse = restTemplate.postForEntity(nluUrl, request, Map.class);
+	        Map<String, Object> responseBody = nluResponse.getBody();
+	        if (responseBody == null || !responseBody.containsKey("fields")) {
+	            return List.of();
+	        }
 
-			Map<String, List<String>> fields = (Map<String, List<String>>) responseBody.get("fields");
+	        Map<String, List<String>> fields = (Map<String, List<String>>) responseBody.get("fields");
 
-			// 2. Elasticsearch 쿼리 생성
-			Map<String, Object> query = buildSearchQuery(fields);
+	        // 2. Elasticsearch 쿼리 생성
+	        Map<String, Object> query = buildSearchQuery(fields);
 
-			// 3. Elasticsearch 검색 요청
-			String esUrl = "https://search-dev6-elasticsearch-qhs6iyg7t7ml24pcydcfdhebvq.ap-northeast-2.es.amazonaws.com/product-info/_search";  // 실제 인덱스 이름 입력
-			HttpHeaders esHeaders = new HttpHeaders();
-			esHeaders.setContentType(MediaType.APPLICATION_JSON);
-			esHeaders.setBasicAuth("admin", "Dev6250529!");
+	        // 3. Elasticsearch 검색 요청
+	        String esUrl = "https://search-dev6-elasticsearch-qhs6iyg7t7ml24pcydcfdhebvq.ap-northeast-2.es.amazonaws.com/product-info/_search";
+	        HttpHeaders esHeaders = new HttpHeaders();
+	        esHeaders.setContentType(MediaType.APPLICATION_JSON);
+	        esHeaders.setBasicAuth("admin", "Dev6250529!");
 
-			HttpEntity<Map<String, Object>> esRequest = new HttpEntity<>(query, esHeaders);
-			ResponseEntity<Map> esResponse = restTemplate.postForEntity(esUrl, esRequest, Map.class);
+	        HttpEntity<Map<String, Object>> esRequest = new HttpEntity<>(query, esHeaders);
+	        ResponseEntity<Map> esResponse = restTemplate.postForEntity(esUrl, esRequest, Map.class);
 
-			Map<String, Object> esBody = esResponse.getBody();
-			if (esBody == null || !esBody.containsKey("hits")) {
-				return List.of();
-			}
+	        Map<String, Object> esBody = esResponse.getBody();
+	        if (esBody == null || !esBody.containsKey("hits")) {
+	            return List.of();
+	        }
 
-			Map<String, Object> hitsWrapper = (Map<String, Object>) esBody.get("hits");
-			List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsWrapper.get("hits");
+	        Map<String, Object> hitsWrapper = (Map<String, Object>) esBody.get("hits");
+	        List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsWrapper.get("hits");
 
-			// 4. 결과 파싱 - prodId만 셋팅해서 리턴
-			List<ProductInfo> resultList = new ArrayList<>();
-			for (Map<String, Object> hit : hits) {
-			    Map<String, Object> source = (Map<String, Object>) hit.get("_source");
+	        // 4. prodId 리스트 추출
+	        List<Integer> prodIds = new ArrayList<>();
+	        for (Map<String, Object> hit : hits) {
+	            Map<String, Object> source = (Map<String, Object>) hit.get("_source");
 
-			    ProductInfo product = new ProductInfo();
+	            Object prodIdObj = source.get("prod_id");
+	            if (prodIdObj != null) {
+	                try {
+	                    prodIds.add(Integer.parseInt(prodIdObj.toString()));
+	                } catch (NumberFormatException e) {
+	                    System.err.println("Invalid prod_id: " + prodIdObj);
+	                }
+	            }
+	        }
 
-			    // 안전하게 형변환 (문자열 → 정수)
-			    Object prodIdObj = source.get("prod_id");
-			    if (prodIdObj != null) {
-			        try {
-			            product.setProdId(Integer.parseInt(prodIdObj.toString()));
-			        } catch (NumberFormatException e) {
-			            // 변환 실패 시 로깅 또는 기본값 처리
-			            System.err.println("Invalid prod_id: " + prodIdObj);
-			            continue; // 해당 항목은 스킵
-			        }
-			    }
+	        // 5. DB에서 전체 ProductInfo 조회
+	        return productRepository.findAllById(prodIds);
 
-			    resultList.add(product);
-			}
-
-
-			return resultList;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return List.of();
-		}
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return List.of();
+	    }
 	}
+
 
 	private Map<String, Object> buildSearchQuery(Map<String, List<String>> mappedTerms) {
 		List<Map<String, Object>> mustQueries = new ArrayList<>();
