@@ -1,5 +1,6 @@
 package com.smhrd.service;
 
+import com.smhrd.DTO.EditRequest;
 import com.smhrd.entity.UserInfo;
 import com.smhrd.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,34 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
+
+    // 유저 가져오기(마이페이지-유저 정보 조회 시 사용)
+	@Override
+	public UserInfo getUser(String id) {
+		UserInfo existingUser = userRepository.findById(id).orElse(null); // 없을 경우 null
+		return existingUser;
+	}
+
+	// 유저 정보 수정
+	@Override
+	public boolean updateUserProfile(String id, EditRequest editRequest) {
+		UserInfo existingUser = getUser(id);
+		
+		if(existingUser != null) {
+			
+			existingUser.setPw(editRequest.getPw());
+			existingUser.setName(editRequest.getName());
+			existingUser.setGender(editRequest.getGender());
+			existingUser.setAgeGroup(editRequest.getAgeGroup());
+			
+			// 해당 id의 엔티티 존재하면 update로 됨
+			userRepository.save(existingUser);
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
 
     
 }
