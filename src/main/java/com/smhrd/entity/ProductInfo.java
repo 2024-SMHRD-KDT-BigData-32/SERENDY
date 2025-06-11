@@ -26,22 +26,22 @@ public class ProductInfo {
     @Column(name = "style_code", nullable = false)
     private String styleCode;
 
-    @Column(name = "fit", nullable = false)
+    @Column(name = "fit")
     private String fit;
 
-    @Column(name = "length", nullable = false)
+    @Column(name = "length")
     private String length;
 
-    @Column(name = "color", nullable = false)
+    @Column(name = "color")
     private String color;
 
-    @Column(name = "material", nullable = false)
+    @Column(name = "material")
     private String material;
 
-    @Column(name = "print", nullable = false)
+    @Column(name = "print")
     private String print;
 
-    @Column(name = "detail", nullable = false)
+    @Column(name = "detail")
     private String detail;
 
     @Column(name = "created_at", nullable = false)

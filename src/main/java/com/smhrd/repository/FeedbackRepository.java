@@ -26,6 +26,9 @@ public interface FeedbackRepository extends JpaRepository<FeedbackInfo, Integer>
 	
 	@Query("SELECT f FROM FeedbackInfo f WHERE f.id = :id AND f.prodId = :prodId")
 	Optional<FeedbackInfo> findByUserIdAndProdId(@Param("id") String id, @Param("prodId") Integer prodId);
+	
+	@Query("SELECT f FROM FeedbackInfo f WHERE f.id = :id")
+	List<FeedbackInfo> findByUserId(@Param("id") String id); 
 
 
 }

@@ -8,5 +8,13 @@ import java.util.Optional;
 public interface ProductService {
     Optional<ProductInfo> getProductById(Integer id);
 
-    List<ProductInfo> getProductsByAreaCategory(String areaCategory);
+    List<ProductInfo> getProductsByCategory(String areaCategory, String subCategory);
+
+    List<ProductInfo> searchProducts(String keyword);
+    
+    List<ProductInfo> getRecommendedProducts(Integer targetId, String type);
+
+    List<ProductInfo> getProductsByIds(List<Integer> ids);
+    
+    List<ProductInfo> getAllProducts();
 }
