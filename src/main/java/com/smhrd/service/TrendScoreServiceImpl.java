@@ -26,27 +26,27 @@ public class TrendScoreServiceImpl implements TrendScoreService{
 
 	@Override
 	public List<TrendScoreDto> getTopTrendScores(List<Integer> prodIds) {
-	    String idsJsonArray = prodIds.stream()
-	        .map(String::valueOf)
-	        .collect(Collectors.joining(","));
-	
-	    String queryJson = """
-	    {
-	      "query": {
-	        "terms": {
-	          "prod_id": [%s]
-	        }
-	      },
-	      "sort": [
-	        {
-	          "trend_score": {
-	            "order": "desc"
-	          }
-	        }
-	      ],
-	      "size": 50
-	    }
-	    """.formatted(idsJsonArray);
+		String idsJsonArray = prodIds.stream()
+			    .map(String::valueOf)
+			    .collect(Collectors.joining(",", "[", "]"));  // 대괄호 포함!
+
+		String queryJson = """
+		{
+		  "query": {
+		    "terms": {
+		      "prod_id": %s
+		    }
+		  },
+		  "sort": [
+		    {
+		      "trend_score": {
+		        "order": "desc"
+		      }
+		    }
+		  ],
+		  "size": 50
+		}
+		""".formatted(idsJsonArray);
 	
 	    try {
 	        Request request = new Request("POST", "/product_trend_score/_search");

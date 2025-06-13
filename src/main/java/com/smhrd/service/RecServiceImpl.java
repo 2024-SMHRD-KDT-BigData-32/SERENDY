@@ -5,19 +5,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.smhrd.DTO.IbcfInputRequest;
 import com.smhrd.entity.ProductInfo;
+import com.smhrd.repository.FeedbackRepository;
+import com.smhrd.repository.ProductInfoRepository;
 
 @Service
 public class RecServiceImpl implements RecService{
 
 	private final RestTemplate restTemplate = new RestTemplate();
+	private final ProductInfoRepository productInfoRepository;
+	
+	@Autowired
+    public RecServiceImpl(ProductInfoRepository productInfoRepository) {
+        this.productInfoRepository = productInfoRepository;
+    }
 	
 	@Override
-	public List<Integer> finalRecomd(String userId, List<String> styleCodes) {
+	public List<ProductInfo> finalRecomd(String userId, List<String> styleCodes) {
 
 		// A. 후보군 필터링
 		
@@ -31,16 +40,17 @@ public class RecServiceImpl implements RecService{
 		    cbfRequest,
 		    List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
 		);
+		System.out.println(cbfCandidates.toString());
 
 		IbcfInputRequest ibcfRequestBody = new IbcfInputRequest(cbfCandidates);
 		
         // 2. IBCF 후보군
-		List<ProductInfo> ibcfCandidates = restTemplate.postForObject(
+		List<Integer> ibcfCandidates = restTemplate.postForObject(
 			    "http://localhost:8081/api/recommend/multi",
 			    ibcfRequestBody,
-			    List.class // 실제론 List<ProductInfo>. 추후 TypeReference로 개선 가능
+			    List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
 			);
-		
+		System.out.println(ibcfCandidates);
 
 		// B. 랭킹화
 		
@@ -56,7 +66,10 @@ public class RecServiceImpl implements RecService{
 
         // List<ProductInfo> merged = withCtr + trendScored;
         // 6. 정렬
-        return trendScored; // 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
+		
+		
+		List<ProductInfo> result = productInfoRepository.findByProdIdIn(trendScored);
+        return result; // 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
 	}
 	
 

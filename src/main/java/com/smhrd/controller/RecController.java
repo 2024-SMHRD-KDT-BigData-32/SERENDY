@@ -36,7 +36,7 @@ public class RecController {
     }
 	
     @GetMapping("/{id}")
-    public List<Integer> getFinalRecomd(@PathVariable String id) {
+    public List<ProductInfo> getFinalRecomd(@PathVariable String id) {
 
     	List<String> styleCodes = stylePrefService.getStyleCodesByUserId(id);
     	System.out.println("들어온 id" + id);

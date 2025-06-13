@@ -6,6 +6,6 @@ import com.smhrd.entity.ProductInfo;
 
 public interface RecService {
 
-	List<Integer> finalRecomd(String userId, List<String> styleCodes);
+	List<ProductInfo> finalRecomd(String userId, List<String> styleCodes);
 
 }
