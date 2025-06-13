@@ -18,6 +18,7 @@ public interface StylePrefRepository extends JpaRepository<StylePref, Integer>{
 	
 	boolean existsByIdAndStyleCode(@Param("id") String id, String styleCode);
 
+	// userId인 사람의 상품 클릭수 가져오기(동일 상품 중복 클릭 제외)
 	@Query("SELECT s.styleCode FROM StylePref s WHERE s.id = :id")
 	List<String> findStyleCodesByUserId(@Param("id") String id);
 
