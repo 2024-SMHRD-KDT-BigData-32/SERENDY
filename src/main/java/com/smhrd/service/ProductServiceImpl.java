@@ -95,6 +95,12 @@ public class ProductServiceImpl implements ProductService {
 	        if (body == null || !body.containsKey("hits")) return List.of();
 
 	        Map<String, Object> hitsWrapper = (Map<String, Object>) body.get("hits");
+	        
+	     
+	        Map<String, Object> totalMap = (Map<String, Object>) hitsWrapper.get("total");
+	        int total = (int) totalMap.get("value");
+	        System.out.println("총 검색 결과 수: " + total);  // <-- 여기에 로그 추가
+	        
 	        List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsWrapper.get("hits");
 
 	        List<Integer> prodIds = new ArrayList<>();
@@ -124,21 +130,21 @@ public class ProductServiceImpl implements ProductService {
 	        String field = entry.getKey();
 	        List<String> values = entry.getValue();
 
-	        List<Map<String, Object>> shouldQueries = new ArrayList<>();
-	        for (String value : values) {
-	            shouldQueries.add(Map.of("term", Map.of(field + ".keyword", value)));
+	        if (values.size() == 1) {
+	            // 값이 하나일 경우 term으로
+	            mustQueries.add(Map.of("term", Map.of(field + ".keyword", values.get(0))));
+	        } else {
+	            // 값이 여러 개일 경우 terms로
+	            mustQueries.add(Map.of("terms", Map.of(field + ".keyword", values)));
 	        }
-
-	        mustQueries.add(Map.of("bool", Map.of("should", shouldQueries)));
 	    }
 
 	    return Map.of(
-	        "size", 100,
-	        "query", Map.of(
-	            "bool", Map.of("must", mustQueries)
-	        )
+	        "size", 7000,
+	        "query", Map.of("bool", Map.of("must", mustQueries))
 	    );
 	}
+
 
 
 
