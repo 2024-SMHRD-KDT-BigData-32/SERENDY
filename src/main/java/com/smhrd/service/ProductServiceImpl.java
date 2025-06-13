@@ -43,80 +43,106 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<ProductInfo> searchProducts(String keyword) {
 	    try {
-	        RestTemplate restTemplate = new RestTemplate();
+	        Map<String, List<String>> keywordsMap = callNluService(keyword);
+	        if (keywordsMap.isEmpty()) return List.of();
 
-	        // 1. NLU 서버 요청
-	        String nluUrl = "http://localhost:8000/nlu";
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.APPLICATION_JSON);
-	        HttpEntity<Map<String, String>> request = new HttpEntity<>(Map.of("text", keyword), headers);
-	        ResponseEntity<Map> nluResponse = restTemplate.postForEntity(nluUrl, request, Map.class);
-	        Map<String, Object> responseBody = nluResponse.getBody();
-	        if (responseBody == null || !responseBody.containsKey("fields")) {
-	            return List.of();
-	        }
+	        Map<String, Object> query = buildSearchQuery(keywordsMap);
 
-	        Map<String, List<String>> fields = (Map<String, List<String>>) responseBody.get("fields");
+	        List<Integer> prodIds = callElasticsearch(query);
+	        if (prodIds.isEmpty()) return List.of();
 
-	        // 2. Elasticsearch 쿼리 생성
-	        Map<String, Object> query = buildSearchQuery(fields);
-
-	        // 3. Elasticsearch 검색 요청
-	        String esUrl = "https://search-dev6-elasticsearch-qhs6iyg7t7ml24pcydcfdhebvq.ap-northeast-2.es.amazonaws.com/product-info/_search";
-	        HttpHeaders esHeaders = new HttpHeaders();
-	        esHeaders.setContentType(MediaType.APPLICATION_JSON);
-	        esHeaders.setBasicAuth("admin", "Dev6250529!");
-
-	        HttpEntity<Map<String, Object>> esRequest = new HttpEntity<>(query, esHeaders);
-	        ResponseEntity<Map> esResponse = restTemplate.postForEntity(esUrl, esRequest, Map.class);
-
-	        Map<String, Object> esBody = esResponse.getBody();
-	        if (esBody == null || !esBody.containsKey("hits")) {
-	            return List.of();
-	        }
-
-	        Map<String, Object> hitsWrapper = (Map<String, Object>) esBody.get("hits");
-	        List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsWrapper.get("hits");
-
-	        // 4. prodId 리스트 추출
-	        List<Integer> prodIds = new ArrayList<>();
-	        for (Map<String, Object> hit : hits) {
-	            Map<String, Object> source = (Map<String, Object>) hit.get("_source");
-
-	            Object prodIdObj = source.get("prod_id");
-	            if (prodIdObj != null) {
-	                try {
-	                    prodIds.add(Integer.parseInt(prodIdObj.toString()));
-	                } catch (NumberFormatException e) {
-	                    System.err.println("Invalid prod_id: " + prodIdObj);
-	                }
-	            }
-	        }
-
-	        // 5. DB에서 전체 ProductInfo 조회
 	        return productRepository.findAllById(prodIds);
-
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        return List.of();
 	    }
 	}
 
+	private Map<String, List<String>> callNluService(String keyword) {
+	    try {
+	        RestTemplate restTemplate = new RestTemplate();
+	        String nluUrl = "http://localhost:8000/translate_keyword";
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.APPLICATION_JSON);
+	        HttpEntity<Map<String, String>> request = new HttpEntity<>(Map.of("query", keyword), headers);
+
+	        ResponseEntity<Map> response = restTemplate.postForEntity(nluUrl, request, Map.class);
+	        Map<String, Object> body = response.getBody();
+
+	        if (body == null || !body.containsKey("keywords")) return Map.of();
+
+	        return (Map<String, List<String>>) body.get("keywords");
+	    } catch (Exception e) {
+	        System.err.println("NLU 호출 실패: " + e.getMessage());
+	        return Map.of();
+	    }
+	}
+
+	private List<Integer> callElasticsearch(Map<String, Object> query) {
+	    try {
+	        RestTemplate restTemplate = new RestTemplate();
+	        String esUrl = "https://search-dev6-elasticsearch-qhs6iyg7t7ml24pcydcfdhebvq.ap-northeast-2.es.amazonaws.com/product-info/_search";
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.APPLICATION_JSON);
+	        headers.setBasicAuth("admin", "Dev6250529!");
+
+	        HttpEntity<Map<String, Object>> request = new HttpEntity<>(query, headers);
+	        ResponseEntity<Map> response = restTemplate.postForEntity(esUrl, request, Map.class);
+	        Map<String, Object> body = response.getBody();
+
+	        if (body == null || !body.containsKey("hits")) return List.of();
+
+	        Map<String, Object> hitsWrapper = (Map<String, Object>) body.get("hits");
+	        List<Map<String, Object>> hits = (List<Map<String, Object>>) hitsWrapper.get("hits");
+
+	        List<Integer> prodIds = new ArrayList<>();
+	        for (Map<String, Object> hit : hits) {
+	            Map<String, Object> source = (Map<String, Object>) hit.get("_source");
+	            Object prodIdObj = source.get("prod_id");
+	            if (prodIdObj != null) {
+	                try {
+	                    prodIds.add(Integer.parseInt(prodIdObj.toString()));
+	                } catch (NumberFormatException e) {
+	                    System.err.println("잘못된 prod_id: " + prodIdObj);
+	                }
+	            }
+	        }
+
+	        return prodIds;
+	    } catch (Exception e) {
+	        System.err.println("Elasticsearch 호출 실패: " + e.getMessage());
+	        return List.of();
+	    }
+	}
 
 	private Map<String, Object> buildSearchQuery(Map<String, List<String>> mappedTerms) {
-		List<Map<String, Object>> mustQueries = new ArrayList<>();
+	    List<Map<String, Object>> mustQueries = new ArrayList<>();
 
-		for (Map.Entry<String, List<String>> entry : mappedTerms.entrySet()) {
-			String field = entry.getKey();
-			List<String> values = entry.getValue();
+	    for (Map.Entry<String, List<String>> entry : mappedTerms.entrySet()) {
+	        String field = entry.getKey();
+	        List<String> values = entry.getValue();
 
-			for (String value : values) {
-				mustQueries.add(Map.of("match", Map.of(field, value)));
-			}
-		}
+	        List<Map<String, Object>> shouldQueries = new ArrayList<>();
+	        for (String value : values) {
+	            shouldQueries.add(Map.of("term", Map.of(field + ".keyword", value)));
+	        }
 
-		return Map.of("query", Map.of("bool", Map.of("must", mustQueries)));
+	        mustQueries.add(Map.of("bool", Map.of("should", shouldQueries)));
+	    }
+
+	    return Map.of(
+	        "size", 100,
+	        "query", Map.of(
+	            "bool", Map.of("must", mustQueries)
+	        )
+	    );
 	}
+
+
+
+
 	
 	@Override
 	public List<ProductInfo> getProductsByIds(List<Integer> ids) {
