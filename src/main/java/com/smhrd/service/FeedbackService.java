@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.smhrd.DTO.FeedbackRequest;
 import com.smhrd.entity.FeedbackInfo;
+import com.smhrd.entity.ProductInfo;
 
 import enums.FeedbackType;
 
@@ -11,18 +12,10 @@ public interface FeedbackService {
 
 	FeedbackType getFeedbackStatus(String id, Integer prodId);
 
-	void likeProduct(FeedbackRequest request);
-
-	void dislikeProduct(FeedbackRequest request);
-		
-	void cancelFeedback(FeedbackRequest request);
-
-	List<FeedbackInfo> getLikedList(String id);
+	List<ProductInfo> getLikedList(String id);
 
 	List<FeedbackInfo> getDislikedList(String id);
 
-	
-
-	
+	void submitFeedback(FeedbackRequest request);
 
 }

@@ -13,5 +13,7 @@ public interface ProductInfoRepository extends JpaRepository<ProductInfo, Intege
 	List<ProductInfo> findByProdCateIn(List<String> categories);
 	List<ProductInfo> findByProdCateAndDetail(String prodCate, String detail);
 	List<ProductInfo> findByProdCate(String prodCate);
+	
+	List<ProductInfo> findByProdIdIn(List<Integer> prodIds);
 
 }

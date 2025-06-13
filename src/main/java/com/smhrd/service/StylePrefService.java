@@ -10,6 +10,7 @@ public interface StylePrefService {
 
 	void updateStylePref(String id, List<String> styleCodes);
 
-	
+
+	List<String> getStyleCodesByUserId(String userId);
 	
 }

@@ -59,6 +59,13 @@ public class StylePrefSerivceImpl implements StylePrefService{
             stylePrefRepository.save(pref);
         }
 	}
+
+	@Override
+	public List<String> getStyleCodesByUserId(String id) {
+
+		List<String> styleCodes = stylePrefRepository.findStyleCodesByUserId("id");
+		return styleCodes;
+	}
 	
 
 }

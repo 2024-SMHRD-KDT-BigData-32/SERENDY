@@ -4,7 +4,7 @@ import com.smhrd.entity.ProductInfo;
 import java.util.List;
 import java.util.Map;
 
-public interface RecommendationService {
+public interface IbcfService {
 
     // 기존 메서드
     List<ProductInfo> getRecommendedProductsByList(List<Integer> targetProductIds, int topN);

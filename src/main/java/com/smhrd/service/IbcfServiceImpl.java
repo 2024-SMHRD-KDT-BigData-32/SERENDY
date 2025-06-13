@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class RecommendationServiceImpl implements RecommendationService {
+public class IbcfServiceImpl implements IbcfService {
 
     @Autowired
     private ProductInfoRepository productInfoRepository;

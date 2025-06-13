@@ -17,8 +17,9 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface FeedbackRepository extends JpaRepository<FeedbackInfo, Integer>{
 
-	List<FeedbackInfo> findByIdAndFbType(String id, FeedbackType like);
-
+	// 좋아요 상품 리스트 (ProductInfo 기준 조회라면 JOIN이 필요)
+	List<FeedbackInfo> findByIdAndFbType(@Param("id") String id, @Param("fbType") FeedbackType fbType);
+	
 	@Modifying
     @Transactional
 	@Query("DELETE FROM FeedbackInfo f WHERE f.id = :id AND f.prodId = :prodId")

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.smhrd.DTO.FeedbackRequest;
 import com.smhrd.entity.FeedbackInfo;
+import com.smhrd.entity.ProductInfo;
 import com.smhrd.repository.FeedbackRepository;
+import com.smhrd.repository.ProductInfoRepository;
 
 import enums.FeedbackType;
 
@@ -17,10 +19,12 @@ import enums.FeedbackType;
 public class FeedbackServiceImpl implements FeedbackService{
 
 	private final FeedbackRepository feedbackRepository;
+	private final ProductInfoRepository productInfoRepository;
 	
 	@Autowired
-    public FeedbackServiceImpl(FeedbackRepository feedbackRepository) {
+    public FeedbackServiceImpl(FeedbackRepository feedbackRepository, ProductInfoRepository productInfoRepository) {
         this.feedbackRepository = feedbackRepository;
+        this.productInfoRepository = productInfoRepository;
     }
 	
 	// 피드백 여부 조회
@@ -35,51 +39,41 @@ public class FeedbackServiceImpl implements FeedbackService{
 		}
 	}
 	
-	// 상품 좋아요
+	// 피드백 정보 저장
 	@Override
-	public void likeProduct(FeedbackRequest request) {
-		
-		// 기존 LIKE 또는 DISLIKE 모두 제거 (있다면)
+	public void submitFeedback(FeedbackRequest request) {
+	    // 기존 피드백 제거 (LIKE or DISLIKE가 DB에 있을 경우 삭제됨)
 	    feedbackRepository.deleteByUserIdAndProdId(request.getId(), request.getProdId());
-		
-		FeedbackInfo feedback = new FeedbackInfo(
-	            request.getId(),
-	            request.getProdId(),
-	            FeedbackType.LIKE,
-	            LocalDateTime.now()
-	        );
-		
-		feedbackRepository.save(feedback);
-		
-	}
-	
-	// 상품 싫어요
-	@Override
-	public void dislikeProduct(FeedbackRequest request) {
 
-		// 기존 LIKE 또는 DISLIKE 모두 제거 (있다면)
-	    feedbackRepository.deleteByUserIdAndProdId(request.getId(), request.getProdId());
-		
-		FeedbackInfo feedback = new FeedbackInfo(
-	            request.getId(),
-	            request.getProdId(),
-	            FeedbackType.DISLIKE,
-	            LocalDateTime.now()
-	        );
-		
-        feedbackRepository.save(feedback);
-	}
+	    // 취소 상태면 종료 (DB에 아무 것도 저장 안함)
+	    if (request.getFbType() == null || request.getFbType() == FeedbackType.NONE) {
+	        return;
+	    }
 
-	// 좋아요나 싫어요 취소
-	public void cancelFeedback(FeedbackRequest request) {
-		// 삭제할 대상 없으면 그냥 넘어감. 있으면 삭제
-	    feedbackRepository.deleteByUserIdAndProdId(request.getId(), request.getProdId());
+	    // 피드백 저장
+	    FeedbackInfo feedback = new FeedbackInfo(
+	        request.getId(),
+	        request.getProdId(),
+	        request.getFbType(),
+	        LocalDateTime.now()
+	    );
+	    feedbackRepository.save(feedback);
 	}
 	
 	// 좋아요 상품 리스트 조회
 	@Override
-	public List<FeedbackInfo> getLikedList(String id) {
-		return feedbackRepository.findByIdAndFbType(id, FeedbackType.LIKE);
+	public List<ProductInfo> getLikedList(String id) {
+		// 1. 해당 유저가 좋아요한 피드백 가져오기
+		List<FeedbackInfo> likedFeedbacks = feedbackRepository.findByIdAndFbType(id, FeedbackType.LIKE);
+		
+		// 2. 피드백 리스트에서 prodId만 추출
+	    List<Integer> prodIds = likedFeedbacks.stream()
+	                                     .map(FeedbackInfo::getProdId)
+	                                     .toList();
+	    
+	    // 3. 상품 ID 리스트로 상품 정보 조회
+	    return productInfoRepository.findByProdIdIn(prodIds);
+		
 	}
 
 	// 싫어요 상품 리스트 조회
@@ -87,4 +81,5 @@ public class FeedbackServiceImpl implements FeedbackService{
 	public List<FeedbackInfo> getDislikedList(String id) {
 		return feedbackRepository.findByIdAndFbType(id, FeedbackType.DISLIKE);
 	}
+
 }
