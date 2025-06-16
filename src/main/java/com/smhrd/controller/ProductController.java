@@ -103,6 +103,8 @@ public class ProductController {
         List<ProductInfo> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
+    
+    
 
 
 
