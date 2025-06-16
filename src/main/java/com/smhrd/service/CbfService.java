@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.smhrd.DTO.CbfProdResponse;
 
-public interface RecomdService {
+public interface CbfService {
 
 	List<CbfProdResponse> recommendProductsByStyle(List<String> preferredStyles, List<Integer> dislikedProdIds);
 	

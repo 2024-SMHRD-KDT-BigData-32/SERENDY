@@ -13,13 +13,13 @@ import java.util.List;
 
 
 @Service
-public class RecomdServiceImpl implements RecomdService{
+public class CbfServiceImpl implements CbfService{
 
     private final CbfProdRepository cbfProdRepository;
     private final ObjectMapper objectMapper = new ObjectMapper(); // JSON 파싱용
 
     @Autowired
-    public RecomdServiceImpl(CbfProdRepository cbfProdRepository) {
+    public CbfServiceImpl(CbfProdRepository cbfProdRepository) {
         this.cbfProdRepository = cbfProdRepository;
     }
 

@@ -2,5 +2,6 @@ package enums;
 
 public enum FeedbackType {
     LIKE,
-    DISLIKE
+    DISLIKE, 
+    NONE
 }

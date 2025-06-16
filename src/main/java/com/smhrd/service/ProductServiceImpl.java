@@ -140,8 +140,10 @@ public class ProductServiceImpl implements ProductService {
 	    }
 
 	    return Map.of(
-	        "size", 7000,
-	        "query", Map.of("bool", Map.of("must", mustQueries))
+	        "size", 9999,
+	        "query", Map.of(
+	            "bool", Map.of("must", mustQueries)
+	        )
 	    );
 	}
 

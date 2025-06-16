@@ -16,4 +16,11 @@ public class IbcfInputRequest {
     private int topN = 2; // 각 상품별 뽑을 유사상품 수
 	@Schema(description = "최종 결과에서 뽑을 개수", defaultValue = "500")
     private int finalTopCount = 500;
+	
+	// 생성자
+    public IbcfInputRequest(List<Integer> productIds) {
+        this.productIds = productIds;
+        this.topN = 2;
+        this.finalTopCount = 500;
+    }
 }
