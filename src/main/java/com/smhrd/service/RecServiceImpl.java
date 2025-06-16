@@ -82,7 +82,7 @@ public class RecServiceImpl implements RecService{
 	    	// B. 랭킹화
 	    	
 	    	// 4. CTR 점수 부여
-	//        List<ProductInfo> withCtr = callCTRModel(merged, userId);
+	//        List<Integer> CtrScored = callCTRModel(merged, userId);
 	    	
 	    	// 5. Trend 점수 부여
 	    	List<Integer> trendScored = restTemplate.postForObject(
