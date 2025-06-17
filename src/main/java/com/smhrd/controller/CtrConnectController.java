@@ -14,11 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.client.RestTemplate;
 
-@RestController
-@RequestMapping("/api")
-public class RecommendationApiController {
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-    @PostMapping("/recommend")
+@RestController
+@Tag(name = "Recommend API", description = "상품 추천 API")
+@RequestMapping("/api/recommend")
+public class CtrConnectController {
+
+    @PostMapping("/ctrConnect")
+    @Operation(summary = "Ctr 모델 연결하는 API", description = "CTR 예측하는 모델의 FastAPI와 연결하는 API")
     public ResponseEntity<?> recommend(@RequestBody Map<String, Object> userInfo) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8001/recommend";

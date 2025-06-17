@@ -2,6 +2,10 @@ package com.smhrd.controller;
 
 import com.smhrd.entity.ProductInfo;
 import com.smhrd.repository.ProductInfoRepository;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import com.smhrd.DTO.ProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -12,12 +16,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@Tag(name = "Recommend API", description = "상품 추천 API")
+@RequestMapping("/api/recommend")
 @RequiredArgsConstructor
-public class RecommendController {
+public class CtrController {
 
     private final ProductInfoRepository productRepo;
-
-    @PostMapping("/recommend")
+    
+    @PostMapping("/ctr")
+    @Operation(summary = "CTR Score 계산", description = "FastAPI 모델 서버를 호출하여 상품 추천 결과를 반환합니다.")
     public ResponseEntity<?> getRecommendation(@RequestBody ProfileRequest profile) {
 
         // 1. FastAPI에 요청 보내기

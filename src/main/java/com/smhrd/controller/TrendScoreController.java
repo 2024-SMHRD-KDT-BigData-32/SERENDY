@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.smhrd.DTO.TrendScoreDto;
 import com.smhrd.service.TrendScoreService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/recommend")
-@Tag(name = "상품 추천 - Trend Score API", description = "상품 추천 로직 - 3단계(랭킹화) : Trend에 부합하는 상품 상위 50개")
+@Tag(name = "Recommend API", description = "상품 추천 API")
+//@Tag(name = "상품 추천 - Trend Score API", description = "상품 추천 로직 - 3단계(랭킹화) : Trend에 부합하는 상품 상위 50개")
 @CrossOrigin(origins = "*")
 public class TrendScoreController {
 	
@@ -26,6 +28,10 @@ public class TrendScoreController {
 	    this.trendScoreService = trendScoreService;
 	 }
 	
+	 @Operation(
+	            summary = "Trend Score 계산",
+	            description = "상품 추천 로직 - 3단계(랭킹화) : Trend에 부합하는 상품 상위 50개"
+	        )
 	 @PostMapping("/trend")
 	 public List<Integer> getTopTrendScores(@RequestBody List<Integer> prodIds) {
 		 		 

@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recommend")
-@Tag(name = "상품 추천-IBCF API", description = "상품 추천 로직 - 2단계(후보군 필터링) : IBCF")
+@Tag(name = "Recommend API", description = "상품 추천 API")
+//@Tag(name = "상품 추천-IBCF API", description = "상품 추천 로직 - 2단계(후보군 필터링) : IBCF")
 @CrossOrigin(origins = "*")
 public class IbcfController {
 

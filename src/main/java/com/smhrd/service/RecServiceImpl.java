@@ -1,5 +1,7 @@
 package com.smhrd.service;
 
+import java.security.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.smhrd.DTO.IbcfInputRequest;
+import com.smhrd.entity.ActionLog;
 import com.smhrd.entity.ProductInfo;
 import com.smhrd.repository.ActionLogRepository;
 import com.smhrd.repository.FeedbackRepository;
@@ -67,39 +70,50 @@ public class RecServiceImpl implements RecService{
     		result = productInfoRepository.findByProdIdIn(trendScored);
 	    } else {
 	    
-	    // 기존 사용자면
-		if (!cbfWithFeedback.isEmpty()) { // cbf 필터링 결과의 상품들의 피드백이 있다면
-	    	IbcfInputRequest ibcfRequestBody = new IbcfInputRequest(cbfWithFeedback);
+		    // 기존 사용자면
+			if (!cbfWithFeedback.isEmpty()) { // cbf 필터링 결과의 상품들의 피드백이 있다면
+		    	IbcfInputRequest ibcfRequestBody = new IbcfInputRequest(cbfWithFeedback);
+		    	
+		    	// 2. IBCF 후보군
+		    	List<Integer> ibcfCandidates = restTemplate.postForObject(
+		    			"http://localhost:8081/api/recommend/multi",
+		    			ibcfRequestBody,
+		    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
+		    			);
+		    	System.out.println("ibcf 결과 : " + ibcfCandidates);
+		    	
+		    	// B. 랭킹화
+		    	
+		    	// 4. CTR 점수 부여
+		//        List<Integer> CtrScored = callCTRModel(merged, userId);
+		    	
+		    	// 5. Trend 점수 부여
+		    	List<Integer> trendScored = restTemplate.postForObject(
+		    			"http://localhost:8081/api/recommend/trend",
+		    			ibcfCandidates,
+		    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
+		    			);
+		    	System.out.println("기존 유저 trendScore 결과 : " + trendScored);
 	    	
-	    	// 2. IBCF 후보군
-	    	List<Integer> ibcfCandidates = restTemplate.postForObject(
-	    			"http://localhost:8081/api/recommend/multi",
-	    			ibcfRequestBody,
-	    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
-	    			);
-	    	System.out.println("ibcf 결과 : " + ibcfCandidates);
-	    	
-	    	// B. 랭킹화
-	    	
-	    	// 4. CTR 점수 부여
-	//        List<Integer> CtrScored = callCTRModel(merged, userId);
-	    	
-	    	// 5. Trend 점수 부여
-	    	List<Integer> trendScored = restTemplate.postForObject(
-	    			"http://localhost:8081/api/recommend/trend",
-	    			ibcfCandidates,
-	    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
-	    			);
-	    	System.out.println("기존 유저 trendScore 결과 : " + trendScored);
-    	
-	    	// List<ProductInfo> merged = withCtr + trendScored;
-	    	// 6. 정렬
-	    	
-	    	// 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
-    		result = productInfoRepository.findByProdIdIn(trendScored);
-		}
+		    	// List<ProductInfo> merged = withCtr + trendScored;
+		    	// 6. 정렬
+		    	
+		    	// 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
+	    		result = productInfoRepository.findByProdIdIn(trendScored);
+			}
 	    }
 		
+	    List<ActionLog> logs = result.stream()
+	    .map(p -> ActionLog.builder()
+                .userId(userId)
+                .prodId(p.getProdId())
+                .actionType("RECOMMEND")
+                .createdAt(LocalDateTime.now())
+                .build())
+        .toList();
+	    
+	    actionLogRepository.saveAll(logs);
+	    
 		return result; 
 		
 	}

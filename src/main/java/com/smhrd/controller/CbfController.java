@@ -21,7 +21,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/recommend")
-@Tag(name = "상품 추천-CBF API", description = "상품 추천 로직 - 1단계(후보군 필터링) : CBF")
+@Tag(name = "Recommend API", description = "상품 추천 API")
+//@Tag(name = "상품 추천-CBF API", description = "상품 추천 로직 - 1단계(후보군 필터링) : CBF")
 @CrossOrigin(origins = "*")
 public class CbfController {
 
