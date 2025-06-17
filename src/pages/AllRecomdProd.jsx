@@ -11,7 +11,7 @@ const categoryData = {
 };
 
 const AllRecomdProd = () => {
-
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const [products, setProducts] = useState([]);
@@ -36,6 +36,8 @@ const AllRecomdProd = () => {
         console.log(res.data);
       } catch (err) {
         console.error('추천 상품 로딩 실패:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -218,30 +220,34 @@ const AllRecomdProd = () => {
 
       {/* 상품 목록 */}
       <div className={`productsGrid grid-${gridType}`}>
-        {products.length === 0 && (
+        {isLoading ? (
+          <div className="loadText">상품을 불러오는 중입니다...</div>
+        ) : products.length === 0 ? (
           <div className="loadText">
             추천된 상품이 없습니다.
           </div>
+        ) : (
+          <>
+            {getCurrentPageProducts().map((product) => (
+              <div key={product.prodId} className="productCard">
+                <img
+                  className="prodImg"
+                  src={`http://localhost:8081/images/${product.prodImg}.jpg`}
+                  alt="상품 이미지"
+                />
+                <button
+                  className="detailBtn"
+                  onClick={() => {
+                    const userId = localStorage.getItem("userId");
+                    navigate(`/proddetail/${product.prodId}?userId=${userId}`);
+                  }}
+                >
+                  Detail<span className="detailBtnArrow">→</span>
+                </button>
+              </div>
+            ))}
+          </>
         )}
-
-        {getCurrentPageProducts().map((product) => (
-          <div key={product.prodId} className="productCard">
-            <img
-              className="prodImg"
-              src={`http://localhost:8081/images/${product.prodImg}.jpg`}
-              alt="상품 이미지"
-            />
-            <button
-              className="detailBtn"
-              onClick={() => {
-                const userId = localStorage.getItem("userId");
-                navigate(`/proddetail/${product.prodId}?userId=${userId}`);
-              }}
-            >
-              Detail<span className="detailBtnArrow">→</span>
-            </button>
-          </div>
-        ))}
       </div>
 
       {/* 페이지이동 */}
