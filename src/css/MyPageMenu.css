@@ -170,7 +170,8 @@
 }
 
 /* 모달 닫기 버튼 */
-.modalCloseBtn {
+.modalCloseBtn,
+.modalConfirmBtn {
   margin-top: 20px;
   background-color: #444;
   color: white;
@@ -178,4 +179,11 @@
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.modalButtonGroup {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }

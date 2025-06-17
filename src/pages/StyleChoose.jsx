@@ -96,7 +96,7 @@ const StyleChoose = () => {
           throw new Error('서버 응답 실패');
         }
 
-        alert("스타일 선택이 완료되었습니다. 로그인 후 추천 상품을 확인해보세요!")
+        alert("스타일 선택이 완료되었습니다. 추천 상품을 확인해보세요!")
         localStorage.removeItem('tempId');
         localStorage.removeItem('allowStyleChoose');
         navigate('/login');
