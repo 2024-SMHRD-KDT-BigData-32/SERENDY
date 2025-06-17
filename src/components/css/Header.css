@@ -3,6 +3,8 @@
 header {
   position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #000000;
   border-bottom: 1.06px solid #e2e2e2;
   display: flex;
