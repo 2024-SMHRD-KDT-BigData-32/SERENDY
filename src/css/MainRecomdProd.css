@@ -1,16 +1,20 @@
 .mrpContainer {
-  height: 100vh;
   width: 100%;
-  padding-top: 100px;
+  height: 100vh;
+  padding-top: 60px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   box-sizing: border-box;
   text-align: center;
+  overflow: hidden;
 }
 
 .mrpTitle {
-  font-size: 34.4px;
+  margin-top: -100px;
+  font-size: 50px;
   font-weight: 800;
+  font-family: 'Abhaya Libre';
   overflow: hidden;
   animation: slideup 0.5s linear forwards;
 }
@@ -21,84 +25,57 @@
   font-weight: 400;
 }
 
-.recomdTabGroup {
-  justify-content: center;
-  display: inline-flex;
-  background-color: #eee;
-  border-radius: 999px;
-  overflow: hidden;
-  margin-top: 30px;
-}
-
-.recomdTab {
-  padding: 10px 30px;
-  background-color: transparent;
-  border: 1px solid transparent;
-  box-sizing: border-box;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  color: #333;
-  transition: background-color 0.3s;
-}
-
-.recomdTab.active {
-  background-color: #1a1a1a;
-  color: white;
-}
-
-.recomdTab.active.first {
-  border-top-left-radius: 999px;
-  border-bottom-left-radius: 999px;
-}
-
-.recomdTab.active.last {
-  border-top-right-radius: 999px;
-  border-bottom-right-radius: 999px;
-}
-
-.recomdImg {
-  display: flex;
-  justify-content: center;
-  /* align-items: flex-start; */
-  gap: 25px;
-  width: 100%;
-  margin-top: 50px;
-  margin-bottom: 20px;
-}
-
-.largeImg {
-  width: 525px;
-  height: 525px;
-  background-color: #d9d9d9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14.4px;
-}
-
-.imgGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
-}
-
-.smallImg {
-  width: 250px;
-  height: 250px;
-  background-color: #d9d9d9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 12.8px;
-}
-
-.hoverBox {
+/* 캐러셀 래퍼 */
+.carouselWrapper {
   position: relative;
-  cursor: pointer;
   overflow: hidden;
+  width: 100%;
+  padding-top: 60px;
+}
+
+.viewAll {
+  position: absolute;
+  right: 15px;
+  top: 30px;
+  color: #3c3c3c;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.viewAll:hover {
+  color: #666;
+  border-color: #666;
+}
+
+/* 슬라이더 래퍼 */
+.sliderWrapper {
+  display: flex;
+}
+
+.sliderWrapper.transitioning {
+  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 캐러셀 아이템 */
+.carouselItem {
+  flex-shrink: 0;
+  width: calc(100%/ 5);
+}
+
+/* 아이템 이미지 */
+.itemImg {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background-color: #e5e7eb;
+  border-radius: 10px;
+  margin: 0 10px;
+  overflow: hidden;
+}
+
+.itemImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .hoverOverlay {
@@ -114,6 +91,7 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  /* z-index: 10; */
 }
 
 .hoverText {
@@ -123,30 +101,59 @@
   text-decoration: underline dotted;
 }
 
-.hoverBox:hover .hoverOverlay {
+.itemImg:hover .hoverOverlay {
   opacity: 1;
 }
 
-.viewAll {
-  position: absolute;
-  right: 22%;
-  bottom: 8%;
+/* 하단 컨트롤 영역 */
+.controlSection {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  color: #3c3c3c;
-  text-decoration: none;
-  font-size: 11.2px;
-  font-weight: 500;
+  justify-content: space-between;
+  margin-top: 1rem;
 }
 
-.mrpVectorImg {
-  height: 6.4px;
-  width: 141.6px;
+/* 진행도 바 */
+.progressTrack {
+  flex: 1;
+  margin: 0 1rem;
+  background-color: #e5e7eb;
+  height: 0.25rem;
+  overflow: hidden;
 }
 
-.viewAll:hover {
-  color: #666;
-  border-color: #666;
+.progressBar {
+  background-color: black;
+  height: 0.25rem;
+  transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 컨트롤 버튼 */
+.controlBtns {
+  display: flex;
+  margin-left: 10px;
+  gap: 1.5rem;
+}
+
+.controlBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.leftArrow,
+.rightArrow {
+  width: 15px;
+  height: 15px;
+}
+
+.rightArrow {
+  transform: rotate(180deg);
+}
+
+.controlImg{
+  width: 15px;
+  height: 15px;
 }

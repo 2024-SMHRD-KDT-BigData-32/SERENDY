@@ -1,0 +1,63 @@
+.footer {
+  background-color: #111;
+  color: #fff;
+  padding: 30px 0;
+  font-size: 14px;
+}
+
+.footer-inner {
+  /* width: 100%; */
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+.footer-left .footerLogo {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-family: 'Abhaya Libre';
+}
+
+.footer-left p {
+  margin: 0;
+  color: #aaa;
+  font-size: 12px;
+}
+
+.footer-center .footer-menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-center .footer-menu li a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-center .footer-menu li a:hover {
+  color: #fff;
+}
+
+.footer-right .social-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.footer-right .social-icons a {
+  color: #ccc;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+
+.footer-right .social-icons a:hover {
+  color: #fff;
+}

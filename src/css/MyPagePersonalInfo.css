@@ -115,7 +115,7 @@
     margin-right: 30px;
 }
 
-.modifyBtn{
+.editUserInfoBtn{
     position: static;
     height: 47px;
     width: 255px;
@@ -128,14 +128,14 @@
     cursor: pointer;
 }
 
-.delAccBtn{
-    position: absolute;
-    top: 606px;
-    left: 1023px;
+.delUserBtn{
+    margin-top: -20px;
+    margin-left: auto;
     color: #000000;
     border: none;
     background-color: transparent;
     font-size: 16px;
     font-weight: 400;
     text-decoration: underline;
+    cursor: pointer;
 }

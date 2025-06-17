@@ -4,20 +4,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 160px 300px 100px 300px;
+  padding: 160px auto 100px auto;
   box-sizing: border-box;
   gap: 80px;
 }
 
 .prodDetailImg {
-  width: 50%;
-  height: 90%;
-  background-color: #d9d9d9;
+  width: 600px;
+  height: 600px;
+  object-fit: cover;
 }
 
 .prodDetailInfo {
-  width: 50%;
-  height: 90%;
+  width: 600px;
+  height: 600px;
 }
 
 .pdTitleRow {
@@ -27,9 +27,16 @@
 }
 
 .pdTitleRow h2 {
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 40px;
+  font-weight: 800;
+  font-family: 'Abhaya Libre';
   text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.pdTitleRow span {
+  font-size: 30px;
+  margin-left: 5px;
+  font-weight: 600;
 }
 
 .likeDislikeBtn {

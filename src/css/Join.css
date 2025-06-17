@@ -94,37 +94,6 @@
     color: #464646;
 }
 
-.idInputGroup > input{
-    position: static;
-    height: 47px;
-    width: 255px;
-    border: 1.33px solid #c4c4c4;
-    border-radius: 6.67px;
-    padding-left: 15px;
-    box-sizing: border-box;
-    font-size: 19px;
-    font-weight: 600;
-    color: #464646;
-}
-
-
-.idInputGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    position: relative;
-}
-
-.checkIdBox {
-    height: 20px;
-    overflow: hidden;
-}
-
-.checkIdMsg {
-    font-size: 13px;
-    line-height: 20px;
-}
-
 .joinFormBox > input::placeholder,
 .idInputGroup > input::placeholder{
     color: #bebebe;

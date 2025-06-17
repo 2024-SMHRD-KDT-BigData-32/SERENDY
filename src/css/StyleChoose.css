@@ -2,20 +2,19 @@
 
 .styleTop {
   text-align: center;
-  margin-bottom: 80px;
+  margin-bottom: 60px;
 }
 
 .styleTop > h1 {
-  font-size: 40px;
-  font-weight: 700;
+  font-size: 45px;
+  font-weight: 800;
   color: #000;
   margin-bottom: -5px;
-  letter-spacing: 1px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Abhaya Libre';
 }
 
 .styleTop > hr{
-  width: 319px;
+  width: 320px;
 }
 
 .styleTop > p {
@@ -53,6 +52,7 @@
 }
 
 .styleCard.selected {
+  transform: scale(0.95);
   border: 1px solid #3e8bff;
   box-shadow: 0 8px 24px rgba(0, 123, 255, 0.2);
 }

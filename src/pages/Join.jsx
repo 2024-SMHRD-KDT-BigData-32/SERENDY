@@ -1,91 +1,157 @@
 import { useState } from 'react';
 import '../css/Join.css'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Join = () => {
-  const [checkIdMsg, setCheckIdMsg] = useState('');
+  const navigate = useNavigate();
 
-  const checkId = () => {
-    setCheckIdMsg('테스트 메시지입니다.');
+  const [formData, setFormData] = useState({
+    id: "",
+    pw: "",
+    checkPw: "",
+    name: "",
+    gender: "",
+    ageGroup: ""
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // 회원가입 요청
+  const submit = async (e) => {
+    e.preventDefault();
+
+    if (formData.pw !== formData.checkPw) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    try {
+      const response = await axios.post('/api/users/register', {
+        id: formData.id,
+        pw: formData.pw,
+        name: formData.name,
+        gender: formData.gender,
+        ageGroup: formData.ageGroup
+      });
+
+      if (response.data === "회원가입 성공") {
+        console.log(response.data)
+        alert('회원가입이 완료되었습니다.');
+        localStorage.setItem("tempId", formData.id);
+        navigate('/stylechoose');
+      } else {
+        console.log(response.data)
+        alert('중복된 아이디입니다. 다른 아이디를 사용해주세요.');
+      }
+    } catch (error) {
+      console.log("회원가입 에러 :", error);
+      alert("회원가입 중 오류가 발생하였습니다.")
+    }
   };
 
   return (
     <div className="joinFrame">
-        <div>
+      <div>
 
-            <div className="bannerBox"/>
-            <img src="/imgs/배너이미지1.png" className='bannerImg'/>
+        <div className="bannerBox" />
+        <img src="/imgs/bannerImg.png" alt='배너이미지' className='bannerImg' />
 
-            <div className="title">SERENDY</div>
-            <div className="slogan">패션 추천 사이트, 슬로건 작성</div>
+        <div className="title">SERENDY</div>
+        <div className="slogan">패션 추천 사이트, 슬로건 작성</div>
 
-            <div className="joinFormBox">
+        <form onSubmit={submit} className="joinFormBox">
 
-              <div className='joinFormTxt'>회원가입</div>
+          <div className='joinFormTxt'>회원가입</div>
 
+          <input
+            type="text"
+            placeholder="이름"
+            name='name'
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="아이디"
+            name='id'
+            value={formData.id}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="비밀번호"
+            name='pw'
+            value={formData.pw}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="비밀번호 확인"
+            name='checkPw'
+            value={formData.checkPw}
+            onChange={handleChange}
+            required
+          />
+
+          <select
+            name="ageGroup"
+            value={formData.ageGroup}
+            onChange={handleChange}
+            required
+          >
+            <option value="" disabled>연령대 선택</option>
+            <option value="20">20대</option>
+            <option value="30">30대</option>
+            <option value="40">40대</option>
+            <option value="50">50대</option>
+          </select>
+
+          <div className='joinGender'>
+            <label>성별</label>
+
+            <label>
               <input
-                type="text"
-                placeholder="이름"
+                type="radio"
+                name='gender'
+                value='F'
+                checked={formData.gender === 'F'}
+                onChange={handleChange}
+                required
               />
-              
-              <div className="idInputGroup">
-                <input
-                  type="text"
-                  placeholder="아이디"
-                  onBlur={checkId}
-                />
-                <div className="checkIdBox">
-                  {checkIdMsg && (
-                    <div className="checkIdMsg">{checkIdMsg}</div>
-                  )}
-                </div>
-              </div>
-              
+              여성
+            </label>
+
+            <label>
               <input
-                type="password"
-                placeholder="비밀번호"
+                type="radio"
+                name='gender'
+                value='M'
+                checked={formData.gender === 'M'}
+                onChange={handleChange}
               />
+              남성
+            </label>
 
-              <input
-                type="password"
-                placeholder="비밀번호 확인"
-              />
+          </div>
 
-              <select name="" id="">
-                <option disabled selected>연령대 선택</option>
-                <option value="">20대</option>
-                <option value="">30대</option>
-                <option value="">40대</option>
-                <option value="">50대</option>
-              </select>
+          <button type='submit'>회원가입</button>
 
-              <div className='joinGender'>
-                <label>성별</label>
+        </form>
 
-                <label>
-                  <input
-                      type="radio"
-                      name='gender'
-                      value='W'
-                  />
-                여성
-                </label>
-
-                <label>
-                  <input
-                      type="radio"
-                      name='gender'
-                      value='M'
-                  />
-                  남성
-                </label>
-
-              </div>
-
-              <button>회원가입</button>
-
-            </div>
-
-        </div>
+      </div>
     </div>
   )
 }

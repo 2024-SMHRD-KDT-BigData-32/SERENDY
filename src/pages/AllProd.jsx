@@ -1,7 +1,9 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AllProd = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
@@ -9,51 +11,53 @@ const AllProd = () => {
   const subCategory = queryParams.get("subCategory");
 
   const [gridType, setGridType] = useState("4x4");
-  const [activeCategory, setActiveCategory] = useState("ALL");
-  const [activeSubCategory, setActiveSubCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 상품 데이터
-  const allProducts = [
-    ...Array(30).fill(null).map((_, index) => ({
-      id: index + 1,
-      image: "/placeholder.svg?height=300&width=250",
-      category: "TOP",
-      subCategory: ["탑", "블라우스", "티셔츠", "니트웨어", "셔츠", "브라탑", "후드티"][index % 7],
-    })),
-    ...Array(25).fill(null).map((_, index) => ({
-      id: index + 31,
-      image: "/placeholder.svg?height=300&width=250",
-      category: "OUTER",
-      subCategory: ["코트", "재킷", "점퍼", "패딩", "베스트", "가디건", "짚업"][index % 7],
-    })),
-    ...Array(28).fill(null).map((_, index) => ({
-      id: index + 56,
-      image: "/placeholder.svg?height=300&width=250",
-      category: "BOTTOM",
-      subCategory: ["청바지", "팬츠", "스커트", "레깅스", "조거팬츠"][index % 5],
-    })),
-    ...Array(22).fill(null).map((_, index) => ({
-      id: index + 84,
-      image: "/placeholder.svg?height=300&width=250",
-      category: "ONEPIECE",
-      subCategory: ["드레스", "점프수트"][index % 2],
-    })),
-  ];
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    if (category) {
-      setActiveCategory(category);
-      setCurrentPage(1);
-    }
-
-    if (subCategory) {
-      setActiveSubCategory(subCategory);
-    } else {
-      setActiveSubCategory("");
-    }
+    setCurrentPage(1);
   }, [category, subCategory]);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const categoryMap = {
+          TOP: "상의",
+          BOTTOM: "하의",
+          OUTER: "아우터",
+          ONEPIECE: "원피스"
+        };
+
+        const areaCategory = categoryMap[category] || category;
+
+        if (!category || category === "ALL") {
+          // 전체 상품 호출
+          const res = await axios.get('/api/products/all');
+          setProducts(res.data);
+        } else {
+          // 카테고리별 호출
+          const params = {
+            area: areaCategory
+          };
+          if (subCategory) {
+            params.sub = subCategory;
+          }
+
+          const res = await axios.get('/api/products/byCategory', { params });
+          setProducts(res.data);
+          console.log('카테고리 상품:', res.data);
+        }
+      } catch (error) {
+        console.error("상품 불러오기 실패:", error);
+        setProducts([]); // 에러시 빈배열 처리
+      }
+    };
+
+    fetchProducts();
+  }, [category, subCategory]);
+
+  // 그리드 타입에 따른 페이지당 상품 개수
   const getItemsPerPage = () => {
     switch (gridType) {
       case "3x3": return 9;
@@ -63,32 +67,23 @@ const AllProd = () => {
     }
   };
 
+  // 그리드 타입 변경
   const handleGridTypeChange = (type) => {
     setGridType(type);
     setCurrentPage(1);
   };
 
-  const getFilteredProducts = () => {
-    if (!activeCategory || activeCategory === "ALL") return allProducts;
-
-    return allProducts.filter(product => {
-      const categoryMatch = product.category === activeCategory;
-      const subMatch = activeSubCategory ? product.subCategory === activeSubCategory : true;
-      return categoryMatch && subMatch;
-    });
-  };
-
   const getCurrentPageProducts = () => {
-    const filtered = getFilteredProducts();
     const itemsPerPage = getItemsPerPage();
     const start = (currentPage - 1) * itemsPerPage;
-    return filtered.slice(start, start + itemsPerPage);
+    return products.slice(start, start + itemsPerPage);
   };
 
   const getTotalPages = () => {
-    return Math.ceil(getFilteredProducts().length / getItemsPerPage());
+    return Math.ceil(products.length / getItemsPerPage());
   };
 
+  // 페이지 나누기
   const getVisiblePages = () => {
     const total = getTotalPages();
     const maxPagesToShow = 5;
@@ -110,6 +105,8 @@ const AllProd = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+
+  // 페이지 스크롤
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -148,9 +145,21 @@ const AllProd = () => {
         {/* 상품 목록 */}
         <div className={`productsGrid grid-${gridType}`}>
           {getCurrentPageProducts().map((product) => (
-            <div key={product.id} className="productCard">
-              <img className="prodImg" src={product.image} alt="상품 이미지" />
-              <Link to="" className="detailBtn">Detail<span className="detailBtnArrow">→</span></Link>
+            <div key={product.prodId} className="productCard">
+              <img
+                className="prodImg"
+                src={`http://localhost:8081/images/${product.prodImg}.jpg`}
+                alt="상품 이미지"
+              />
+              <button
+                className="detailBtn"
+                onClick={() => {
+                  const userId = localStorage.getItem("userId");
+                  navigate(`/proddetail/${product.prodId}?userId=${userId}`);
+                }}
+              >
+                Detail<span className="detailBtnArrow">→</span>
+              </button>
             </div>
           ))}
         </div>
@@ -213,13 +222,13 @@ const AllProd = () => {
         <div className="navArrows">
 
           <button className="navArrow up" onClick={scrollToTop}>
-            <img src="/imgs/화살표.png" alt="위로" className="arrowImg arrowUp" />
+            <img src="/imgs/arrow.png" alt="위로" className="arrowImg arrowUp" />
           </button>
 
           <button className="navArrow down" onClick={scrollToBottom}>
-            <img src="/imgs/화살표.png" alt="아래로" className="arrowImg arrowDown" />
+            <img src="/imgs/arrow.png" alt="아래로" className="arrowImg arrowDown" />
           </button>
-          
+
         </div>
       </div>
     </div>
