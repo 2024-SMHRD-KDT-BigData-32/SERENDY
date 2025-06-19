@@ -35,21 +35,29 @@ public class CtrController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        String jsonBody = """
+        	    {
+        	        "age": "20대",
+        	        "style": ["에스닉", "내추럴", "페미닌"],
+        	        "fit": ["루즈"],
+        	        "color": ["블랙"],
+        	        "candidate_items": [9614, 13463, 27871, 27151, 43223, 39571, 32435, 48171, 11240, 46269]
+        	    }
+        	    """;
+        
         HttpEntity<ProfileRequest> request = new HttpEntity<>(profile, headers);
 
         ResponseEntity<Map> response = restTemplate.postForEntity(fastApiUrl, request, Map.class);
 
+        System.out.println(response);
+        
         // 2. 응답에서 prod ID 추출
-        List<String> prodIdStrings = (List<String>) response.getBody().get("recommendations");
-
-        // 3. "prod1" → 1 형식으로 변환
-        List<Integer> prodIds = prodIdStrings.stream()
-                .map(id -> Integer.parseInt(id.replace("prod", "")))
-                .collect(Collectors.toList());
+        List<Integer> prodIds = (List<Integer>) response.getBody().get("recommended_items");
 
         // 4. DB에서 상품 정보 조회
         List<ProductInfo> products = productRepo.findByProdIdIn(prodIds);
 
+        System.out.println(products);
         return ResponseEntity.ok(products);
     }
 }
