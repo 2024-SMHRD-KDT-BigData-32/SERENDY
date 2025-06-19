@@ -42,6 +42,7 @@ public class StylePrefSerivceImpl implements StylePrefService{
 		
 	}
 
+	// 선호 스타일 재선택
 	@Override
 	@Transactional
 	public void updateStylePref(String id, List<String> styleCodes) {
@@ -60,6 +61,7 @@ public class StylePrefSerivceImpl implements StylePrefService{
         }
 	}
 
+	// 선호 스타일 조회
 	@Override
 	public List<String> getStyleCodesByUserId(String id) {
 

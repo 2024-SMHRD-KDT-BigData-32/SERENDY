@@ -8,4 +8,6 @@ public interface TrendScoreService {
 
 	List<TrendScoreDto> getTopTrendScores(List<Integer> prodIds);
 
+	List<TrendScoreDto> getTopTrendScoresAll(int size);
+
 }

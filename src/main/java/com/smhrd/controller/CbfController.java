@@ -3,6 +3,7 @@ package com.smhrd.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import com.smhrd.DTO.CbfProdResponse;
 import com.smhrd.DTO.StylePrefRequest;
 import com.smhrd.entity.FeedbackInfo;
 import com.smhrd.service.FeedbackService;
+import com.smhrd.service.StylePrefService;
 import com.smhrd.service.CbfService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,10 +30,14 @@ public class CbfController {
 
 	private final CbfService recomdService;
 	private final FeedbackService feedbackService;
+	
+	@Autowired
+	private final StylePrefService stylePrefService;
 
-    public CbfController(CbfService recomdService, FeedbackService feedbackService) {
+    public CbfController(CbfService recomdService, FeedbackService feedbackService, StylePrefService stylePrefService) {
         this.recomdService = recomdService;
         this.feedbackService = feedbackService;
+        this.stylePrefService = stylePrefService;
     }
 
     // 사용자 선호 스타일 3개 받고 추천 상품 리스트 리턴
@@ -40,9 +46,10 @@ public class CbfController {
             description = "사용자의 선호 스타일 리스트(3개)를 기반으로 콘텐츠 기반 필터링(CBF)을 활용해 유사한 상품 필터링"
         )
     @PostMapping("/cbf")
-    public ResponseEntity<List<Integer>> getRecommendedProducts(@RequestBody StylePrefRequest userPreference) {
-        List<String> preferredStyles = userPreference.getStyleCodes();
-        String userId = userPreference.getId(); // 사용자 id 받아오기
+    public ResponseEntity<List<Integer>> getRecommendedProducts(String userId) {
+//        List<String> preferredStyles = userPreference.getStyleCodes();
+        List<String> preferredStyles  = stylePrefService.getStyleCodesByUserId(userId);
+//        String userId = userPreference.getId(); // 사용자 id 받아오기
 
         List<FeedbackInfo> dislikedFeedbacks = feedbackService.getDislikedList(userId);
 
@@ -51,7 +58,7 @@ public class CbfController {
 		    .map(FeedbackInfo::getProdId)
 		    .collect(Collectors.toList());
 
-     	// prodId, prod_img(현재 다 null로 es에 적재됨), score(유사도 점수)
+     	// prodId, score(유사도 점수)
         List<CbfProdResponse> recommended = recomdService.recommendProductsByStyle(preferredStyles, dislikedProdIds);
 
         // 이 중에서 prodId List만 주기

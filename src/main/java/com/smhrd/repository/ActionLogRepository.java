@@ -15,5 +15,8 @@ public interface ActionLogRepository extends JpaRepository<ActionLog, Long> {
 
     @Query("SELECT DISTINCT a.prodId FROM ActionLog a WHERE a.prodId IN :prodIds AND a.actionType IN ('click', 'recommend')")
 	List<Integer> findProductIdsWithFeedback(@Param("prodIds") List<Integer> cbfCandidates);
-    
+
+    @Query("SELECT al.prodId FROM ActionLog al WHERE al.userId = :userId AND al.actionType = 'click'")
+    List<Integer> findClickedProdIdsByUser(@Param("userId") String userId);
+
 }

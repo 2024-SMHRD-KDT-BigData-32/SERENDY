@@ -2,9 +2,12 @@ package com.smhrd.service;
 
 import java.security.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,9 +86,18 @@ public class RecServiceImpl implements RecService{
 		    	System.out.println("ibcf 결과 : " + ibcfCandidates);
 		    	
 		    	// B. 랭킹화
+		    	Map<String, Object> requestBody = new HashMap<>();
+		    	requestBody.put("userId", userId);
+		    	requestBody.put("candidateItems", ibcfCandidates);
 		    	
 		    	// 4. CTR 점수 부여
 		//        List<Integer> CtrScored = callCTRModel(merged, userId);
+		    	List<Integer> ctrScored = restTemplate.postForObject(
+		    			"http://localhost:8081/api/recommend/ctr",
+		    			requestBody,
+		    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
+		    			);
+		    	System.out.println("기존 유저 ctrScore 결과 : " + ctrScored);
 		    	
 		    	// 5. Trend 점수 부여
 		    	List<Integer> trendScored = restTemplate.postForObject(
@@ -97,9 +109,16 @@ public class RecServiceImpl implements RecService{
 	    	
 		    	// List<ProductInfo> merged = withCtr + trendScored;
 		    	// 6. 정렬
+		    	Set<Integer> mergedProd = new HashSet<>();
+		    	mergedProd.addAll(ctrScored);
+		    	mergedProd.addAll(trendScored);
+		    	
+		    	List<Integer> noDuplicates = new ArrayList<>(mergedProd);
+		    	System.out.println("최종 중복 제거 결과 : " + noDuplicates);
+		    	
 		    	
 		    	// 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
-	    		result = productInfoRepository.findByProdIdIn(trendScored);
+	    		result = productInfoRepository.findByProdIdIn(noDuplicates);
 			}
 	    }
 		
