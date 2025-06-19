@@ -4,6 +4,7 @@ import com.smhrd.DTO.ProductBasicInfoDto;
 import com.smhrd.entity.ProductInfo;
 import com.smhrd.service.ProductService;
 import com.smhrd.service.ActionLogService;
+import com.smhrd.service.IbcfService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,28 +31,48 @@ public class ProductController {
 
     private final ProductService productService;
     private final ActionLogService actionLogService;
+    private final IbcfService ibcfService;
     
     @Autowired
-    public ProductController(ProductService productService, ActionLogService actionLogService) {
+    public ProductController(ProductService productService, ActionLogService actionLogService, IbcfService ibcfService) {
         this.productService = productService;
         this.actionLogService = actionLogService;
+        this.ibcfService = ibcfService;
     }
 
-    @Operation(summary = "상품 상세 조회", description = "상품 ID로 상세 정보를 조회합니다.")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(
-            @PathVariable("id") Integer id,
-            @RequestParam("userId") String userId) { // 프론트에서 userId 쿼리 파라미터로 넘김
+    @Operation(
+    	    summary = "상품 상세 조회 및 유사 상품 추천",
+    	    description = "해당 상품 ID에 대한 상세 정보를 조회하고, IBCF 기반 유사 상품 목록도 함께 제공합니다."
+    	)
+    	@GetMapping("/{id}")
+    	public ResponseEntity<?> getProductById(
+    	        @Parameter(description = "조회할 상품 ID", example = "101")
+    	        @PathVariable("id") Integer id,
 
-        // CLICK 로그 저장
-        actionLogService.saveClickLog(userId, id);
+    	        @Parameter(description = "클릭한 사용자 ID", example = "user123")
+    	        @RequestParam("userId") String userId) {
 
-        // 상품 상세 조회
-        Optional<ProductInfo> productOpt = productService.getProductById(id);
-        return productOpt
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    	    // 클릭 로그 저장
+    	    actionLogService.saveClickLog(userId, id);
+
+    	    // 상품 상세 조회
+    	    Optional<ProductInfo> productOpt = productService.getProductById(id);
+    	    if (productOpt.isEmpty()) {
+    	        return ResponseEntity.notFound().build();
+    	    }
+
+    	    // IBCF 추천 상품
+    	    int topN = 10;
+    	    List<ProductInfo> similarProducts = ibcfService.getRecommendedProductsByList(List.of(id), topN);
+
+    	    // 응답 구성
+    	    Map<String, Object> result = new HashMap<>();
+    	    result.put("product", productOpt.get());
+    	    result.put("similar", similarProducts);
+
+    	    return ResponseEntity.ok(result);
+    	}
+
 
     
     @Operation(
