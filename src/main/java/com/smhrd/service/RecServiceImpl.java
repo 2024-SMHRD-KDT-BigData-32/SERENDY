@@ -11,9 +11,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smhrd.DTO.IbcfInputRequest;
 import com.smhrd.entity.ActionLog;
 import com.smhrd.entity.ProductInfo;
@@ -47,16 +56,25 @@ public class RecServiceImpl implements RecService{
 		// A. 후보군 필터링
 		
 		// 1. CBF 후보군
-		Map<String, Object> cbfRequest = new HashMap<>();
-		cbfRequest.put("userId", userId);
-		cbfRequest.put("styleCodes", styleCodes); // List<String> 타입
+		// 1. CBF 후보군
+		System.out.println("[CBF 요청] userId: " + userId);
 
-		List<Integer> cbfCandidates = restTemplate.postForObject(
-		    "http://localhost:8081/api/recommend/cbf",
-		    cbfRequest,
-		    List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
+		// 쿼리 파라미터로 userId 추가
+		String url = UriComponentsBuilder
+		    .fromHttpUrl("http://localhost:8081/api/recommend/cbf")
+		    .queryParam("userId", userId)
+		    .toUriString();
+
+		ResponseEntity<List<Integer>> responseEntity = restTemplate.exchange(
+		    url,
+		    HttpMethod.POST,           // POST 그대로 유지
+		    null,                      // 바디 없이 요청
+		    new ParameterizedTypeReference<List<Integer>>() {}
 		);
-		System.out.println("cbf 결과 : " + cbfCandidates.toString());
+
+		List<Integer> cbfCandidates = responseEntity.getBody();
+		System.out.println("[CBF 결과] " + cbfCandidates);
+
 
 		// 피드백이 있는 상품만 필터링 - IBCF를 위해서
 		List<Integer> cbfWithFeedback = actionLogRepository.findProductIdsWithFeedback(cbfCandidates);
@@ -102,7 +120,7 @@ public class RecServiceImpl implements RecService{
 		    	// 5. Trend 점수 부여
 		    	List<Integer> trendScored = restTemplate.postForObject(
 		    			"http://localhost:8081/api/recommend/trend",
-		    			ibcfCandidates,
+		    			ibcfCandidates, // 원래는 ibcfCandidates
 		    			List.class // 실제론 List<Integer>. 추후 TypeReference로 개선 가능
 		    			);
 		    	System.out.println("기존 유저 trendScore 결과 : " + trendScored);
@@ -115,7 +133,6 @@ public class RecServiceImpl implements RecService{
 		    	
 		    	List<Integer> noDuplicates = new ArrayList<>(mergedProd);
 		    	System.out.println("최종 중복 제거 결과 : " + noDuplicates);
-		    	
 		    	
 		    	// 모델 api 설계 전까진 임시로 trendScored된 상품 리스트 출력하는 걸로
 	    		result = productInfoRepository.findByProdIdIn(noDuplicates);

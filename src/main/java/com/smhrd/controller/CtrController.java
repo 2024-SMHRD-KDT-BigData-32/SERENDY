@@ -65,7 +65,7 @@ public class CtrController {
     
     @PostMapping("/ctrAll")
     @Operation(summary = "전체 상품 기준 CTR Score 계산", description = "FastAPI 모델 서버를 호출하여 전체 상품 기준으로 상품 추천 결과를 반환합니다.")
-    public ResponseEntity<?> getRecommendationAll(String userId) {
+    public ResponseEntity<?> getRecommendationAll(@RequestParam String userId) {
     	
         // 1. 클릭 기반 속성 추출 (fit, color)
         Map<String, String> userClickPreference = ctrService.getMostFrequentFitAndColor(userId);

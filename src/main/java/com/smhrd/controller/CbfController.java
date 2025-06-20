@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smhrd.DTO.CbfProdResponse;
@@ -50,7 +51,7 @@ public class CbfController {
             description = "사용자의 선호 스타일 리스트(3개)를 기반으로 콘텐츠 기반 필터링(CBF)을 활용해 유사한 상품 필터링"
         )
     @PostMapping("/cbf")
-    public ResponseEntity<List<Integer>> getRecommendedProducts(String userId) {
+    public ResponseEntity<List<Integer>> getRecommendedProducts(@RequestParam String userId) {
 //        List<String> preferredStyles = userPreference.getStyleCodes();
         List<String> preferredStyles  = stylePrefService.getStyleCodesByUserId(userId);
 //        String userId = userPreference.getId(); // 사용자 id 받아오기
@@ -70,6 +71,7 @@ public class CbfController {
         	    .map(CbfProdResponse::getProdId)
         	    .collect(Collectors.toList());
         
+        System.out.println("cbf 추천로직 : " + prodIdList.toString());
         return ResponseEntity.ok(prodIdList);
     } 
     
@@ -79,7 +81,7 @@ public class CbfController {
             description = "사용자의 선호 스타일 리스트(3개)를 기반으로 콘텐츠 기반 필터링(CBF)을 활용해 유사한 상품 필터링"
         )
     @PostMapping("/cbf/all")
-    public ResponseEntity<List<ProductInfo>> getCbfProdDetails(String userId) {
+    public ResponseEntity<List<ProductInfo>> getCbfProdDetails(@RequestParam String userId) {
 //        List<String> preferredStyles = userPreference.getStyleCodes();
         List<String> preferredStyles  = stylePrefService.getStyleCodesByUserId(userId);
 //        String userId = userPreference.getId(); // 사용자 id 받아오기

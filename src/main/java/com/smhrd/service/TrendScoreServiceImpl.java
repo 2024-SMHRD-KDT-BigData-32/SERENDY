@@ -45,7 +45,8 @@ public class TrendScoreServiceImpl implements TrendScoreService {
           "sort": [
             {
               "trend_score": {
-                "order": "desc"
+                "order": "desc",
+                "missing": "_last"
               }
             }
           ],
@@ -54,18 +55,23 @@ public class TrendScoreServiceImpl implements TrendScoreService {
         """.formatted(idsJsonArray);
 
         try {
+//            System.out.println("[TrendScore] Elasticsearch 쿼리: " + queryJson);
+
             Request request = new Request("POST", "/product_trend_score/_search");
             request.setJsonEntity(queryJson);
 
             Response response = restClient.performRequest(request);
             String responseBody = EntityUtils.toString(response.getEntity());
 
-            return parseTrendScoreResponse(responseBody);
+            List<TrendScoreDto> result = parseTrendScoreResponse(responseBody);
+//            System.out.println("[TrendScore] 응답 파싱 결과: " + result);
+            return result;
 
         } catch (IOException e) {
             throw new RuntimeException("Elasticsearch 요청 실패", e);
         }
     }
+
 
     // 전체 상품 대상 trend_score 기준 top N
     @Override
