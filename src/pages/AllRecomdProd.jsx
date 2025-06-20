@@ -234,11 +234,13 @@ const AllRecomdProd = () => {
                   className="prodImg"
                   src={`http://localhost:8081/images/${product.prodImg}.jpg`}
                   alt="상품 이미지"
+                  onClick={() => {
+                    navigate(`/proddetail/${product.prodId}?userId=${userId}`);
+                  }}
                 />
                 <button
                   className="detailBtn"
                   onClick={() => {
-                    const userId = localStorage.getItem("userId");
                     navigate(`/proddetail/${product.prodId}?userId=${userId}`);
                   }}
                 >

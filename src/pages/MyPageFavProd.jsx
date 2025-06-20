@@ -338,6 +338,11 @@ const MyPageFavProd = () => {
                 className="prodImg"
                 src={`http://localhost:8081/images/${product.prodImg}.jpg`}
                 alt="상품 이미지"
+                onClick={(e) => {
+                  if (edit) return;
+                  e.stopPropagation();
+                  navigate(`/proddetail/${product.prodId}?userId=${userId}`);
+                }}
               />
 
               <button
@@ -345,7 +350,6 @@ const MyPageFavProd = () => {
                 onClick={(e) => {
                   if (edit) return;
                   e.stopPropagation();
-                  const userId = localStorage.getItem("userId");
                   navigate(`/proddetail/${product.prodId}?userId=${userId}`);
                 }}
                 disabled={edit}

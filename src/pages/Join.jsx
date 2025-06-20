@@ -45,6 +45,7 @@ const Join = () => {
         console.log(response.data)
         alert('회원가입이 완료되었습니다.');
         localStorage.setItem("tempId", formData.id);
+        localStorage.setItem('allowStyleChoose', 'true');
         navigate('/stylechoose');
       } else {
         console.log(response.data)
@@ -113,10 +114,10 @@ const Join = () => {
             required
           >
             <option value="" disabled>연령대 선택</option>
-            <option value="20">20대</option>
-            <option value="30">30대</option>
-            <option value="40">40대</option>
-            <option value="50">50대</option>
+            <option value="20대">20대</option>
+            <option value="30대">30대</option>
+            <option value="40대">40대</option>
+            <option value="50대">50대</option>
           </select>
 
           <div className='joinGender'>

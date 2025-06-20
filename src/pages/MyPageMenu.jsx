@@ -15,7 +15,7 @@ const MyPageMenu = () => {
       const res = await axios.get(`/api/users/getStylePref/${userId}`);
       const styleList = res.data;
       setUserStyle(styleList);
-      setShowConfirmModal(true); // 확인 모달 열기
+      setShowConfirmModal(true);
     } catch (err) {
       console.error('추천 상품 로딩 실패:', err);
     }

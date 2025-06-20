@@ -1,178 +1,163 @@
-import { useState, useEffect } from "react"
-import "../css/MainRecomdProd.css"
-import axios from "axios"
-import { Link } from "react-router-dom"
+import axios from 'axios';
+import '../css/MainRecomdProd.css';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut'
+    }
+  }
+};
+
+const container = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
 
 const MainRecomdProd = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const [isTransitioning, setIsTransitioning] = useState(true)
-
   const userId = localStorage.getItem('userId');
+  const [userStyle, setUserStyle] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState([]);
+  const [allRecomdProd, setAllRecomdProd] = useState([]);
+  const [styleRecomdProd, setStyleRecomdProd] = useState([]);
+  const [clickRecomdProd, setClickRecomdProd] = useState([]);
+  const [trendRecomdProd, setTrendRecomdProd] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
-        const res = await axios.get(`/api/recommend/${userId}`);
-        const allProducts = res.data;
+        const [all, style, click, trend, userStyle] = await Promise.all([
+          axios.get(`/api/recommend/${userId}`),
+          axios.post(`/api/recommend/cbf/all?userId=${userId}`),
+          axios.post(`/api/recommend/ctrAll?userId=${userId}`),
+          axios.get('/api/recommend/trend/all'),
+          axios.get(`/api/users/getStylePref/${userId}`)
+        ]);
 
-        // 배열 셔플 (Fisher–Yates 알고리즘)
-        const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
-
-        // 앞에서 12개만 잘라내기
-        const selected = shuffled.slice(0, 12);
-        setProducts(selected);
-        console.log(selected);
+        setAllRecomdProd(all.data.slice(0, 3));
+        setStyleRecomdProd(style.data.slice(0, 3));
+        setClickRecomdProd(click.data.slice(0, 3));
+        setTrendRecomdProd(trend.data.slice(0, 3));
+        setUserStyle(userStyle.data);
       } catch (err) {
-        console.error('추천 상품 로딩 실패:', err);
+        console.error('에러 정보', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (userId) {
-      fetchData();
-    }
+    if (userId) fetchAll();
   }, [userId]);
 
-  const totalproducts = products.length
-  const productsPerMove = 3
-  const totalPages = Math.ceil(totalproducts / productsPerMove)
-
-  // 무한 루프를 위한 확장된 아이템 배열
-  const extendedproducts = [
-    ...products.slice(-6), // 마지막 6개 복제
-    ...products, // 원본 12개
-    ...products.slice(0, 6), // 처음 6개 복제
-  ]
-
-  // 현재 페이지 계산 (정규화된 인덱스 사용)
-  const normalizedIndex = ((currentIndex % totalproducts) + totalproducts) % totalproducts
-  const currentPage = Math.floor(normalizedIndex / productsPerMove)
-  const progress = Math.min(100, Math.max(0, (currentPage / (totalPages - 1)) * 100))
-
-  // 다음 슬라이드
-  const handleNext = () => {
-    if (currentIndex >= totalproducts - productsPerMove) {
-      // 마지막 페이지에서 다음으로 갈 때
-      setCurrentIndex(currentIndex + productsPerMove) // 복제된 영역으로 이동
-    } else {
-      setCurrentIndex(currentIndex + productsPerMove)
-    }
-  }
-
-  // 이전 슬라이드
-  const handlePrev = () => {
-    if (currentIndex <= 0) {
-      // 첫 페이지에서 이전으로 갈 때
-      setCurrentIndex(currentIndex - productsPerMove) // 복제된 영역으로 이동
-    } else {
-      setCurrentIndex(currentIndex - productsPerMove)
-    }
-  }
-
-  // 무한 루프 리셋 처리
-  useEffect(() => {
-    if (currentIndex >= totalproducts) {
-      // 마지막을 넘어선 경우
-      const timer = setTimeout(() => {
-        setIsTransitioning(false)
-        setCurrentIndex(0)
-        setTimeout(() => setIsTransitioning(true), 50)
-      }, 700) // transition 시간과 동일
-
-      return () => clearTimeout(timer)
-    } else if (currentIndex < 0) {
-      // 첫 번째를 넘어선 경우
-      const timer = setTimeout(() => {
-        setIsTransitioning(false)
-        setCurrentIndex(totalproducts - productsPerMove)
-        setTimeout(() => setIsTransitioning(true), 50)
-      }, 700) // transition 시간과 동일
-
-      return () => clearTimeout(timer)
-    }
-  }, [currentIndex, totalproducts, productsPerMove])
-
-  // 자동 재생
-  useEffect(() => {
-    if (!isAutoPlaying) return
-
-    const interval = setInterval(handleNext, 4000)
-    return () => clearInterval(interval)
-  }, [isAutoPlaying, currentIndex])
-
-  const translateX = -((currentIndex + 6 - 3) * 20);
-
   return (
-    <div className="mrpContainer">
+    <div className="scrollWrapper">
       <div className="mrpTitle">Recommend Items for You</div>
-      <div className="mrpSubtitle">선택하신 스타일 정보 기반으로 추천된 상품입니다.</div>
-
       {isLoading ? (
-        <div className="loadText">상품을 불러오는 중입니다...</div>
-      ) : extendedproducts.length === 0 ? (
-        <div className="loadText">추천된 상품이 없습니다.</div>
+        <div className="loadingBox">
+          <p>상품을 불러오는 중입니다...</p>
+        </div>
       ) : (
         <>
-          <div className="carouselWrapper">
-            <Link to="/allrecomdprod" className='viewAll'>
-              <span>더보기</span>
-            </Link>
-            <div
-              className={`sliderWrapper ${isTransitioning ? "transitioning" : ""}`}
-              style={{ transform: `translateX(${translateX}%)` }}
-            >
-              {extendedproducts.map((item, index) => {
-                const isActive = index === currentIndex + 6; // 현재 중앙 슬라이드
-                return (
-                  <div key={`${item.prodId}-${index}`} className={`carouselItem ${isActive ? 'active' : ''}`}>
-                    <div className="itemImg">
-                      <img src={`http://localhost:8081/images/${item.prodImg}.jpg`} alt={`Item ${item.prodId}`} />
-                      <Link to={`/proddetail/${item.prodId}?userId=${userId}`} className="hoverOverlay">
+          {/* Best for You */}
+          {allRecomdProd.length === 3 && (
+            <motion.section className="scrollSection bestSection" variants={container} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <motion.h2 className="sectionTitle" variants={fadeUp}>Best for You</motion.h2>
+              <motion.p className="sectionDesc" variants={fadeUp}>당신에게 가장 적합한 상품이에요.</motion.p>
+              <motion.div className="bestImageRow" variants={container}>
+                {allRecomdProd.map((item) => (
+                  <motion.div key={item.prodId} className="imgCard" variants={fadeUp}>
+                    <Link to={`/proddetail/${item.prodId}?userId=${userId}`} className="hoverOverlayWrapper">
+                      <img src={`http://localhost:8081/images/${item.prodImg}.jpg`} alt={item.prodId} />
+                      <div className="hoverOverlay">
                         <span className="hoverText">Detail →</span>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+                {/* 더보기 버튼 */}
+                <motion.div className="moreLinkWrapper" variants={fadeUp}>
+                  <Link to="/allrecomdprod" className="moreLink">더보기＋</Link>
+                </motion.div>
+              </motion.div>
+            </motion.section>
+          )}
 
-            </div>
-          </div>
+          {/* Based on Your Style */}
+          {styleRecomdProd.length === 3 && (
+            <motion.section className="scrollSection" variants={container} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
+              <motion.h2 className="sectionTitle" variants={fadeUp}>Based on Your Style</motion.h2>
+              <motion.p className="sectionDesc" variants={fadeUp}>
+                "{userStyle.join(', ')}" 스타일을 반영한 추천 상품이에요.
+              </motion.p>
+              <motion.div className="imageGrid" variants={container}>
+                {styleRecomdProd.map((item) => (
+                  <motion.div key={item.prodId} className="imgCard" variants={fadeUp}>
+                    <Link to={`/proddetail/${item.prodId}?userId=${userId}`} className="hoverOverlayWrapper">
+                      <img src={`http://localhost:8081/images/${item.prodImg}.jpg`} alt={item.prodId} />
+                      <div className="hoverOverlay">
+                        <span className="hoverText">Detail →</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.section>
+          )}
 
-          <div className="controlSection">
-            <div className="progressTrack">
-              <div className="progressBar" style={{ width: `${progress}%` }} />
-            </div>
+          {/* You May Like */}
+          {clickRecomdProd.length === 3 && (
+            <motion.section className="scrollSection" variants={container} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
+              <motion.h2 className="sectionTitle" variants={fadeUp}>You May Like</motion.h2>
+              <motion.p className="sectionDesc" variants={fadeUp}>당신이 좋아할 만한 상품을 모아봤어요.</motion.p>
+              <motion.div className="imageGrid" variants={container}>
+                {clickRecomdProd.map((item) => (
+                  <motion.div key={item.prodId} className="imgCard" variants={fadeUp}>
+                    <Link to={`/proddetail/${item.prodId}?userId=${userId}`} className="hoverOverlayWrapper">
+                      <img src={`http://localhost:8081/images/${item.prodImg}.jpg`} alt={item.prodId} />
+                      <div className="hoverOverlay">
+                        <span className="hoverText">Detail →</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.section>
+          )}
 
-            <div className="controlBtns">
-              <button onClick={handlePrev} className="controlBtn" aria-label="Previous slide">
-                <img className="leftArrow" src="/imgs/simpleArrow.png" alt="왼쪽화살표" />
-              </button>
-
-              <button onClick={handleNext} className="controlBtn" aria-label="Next slide">
-                <img className="rightArrow" src="/imgs/simpleArrow.png" alt="오른쪽화살표" />
-              </button>
-
-              <button
-                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                className="controlBtn"
-                aria-label={isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
-              >
-                {isAutoPlaying ?
-                  <img className="controlImg" src="/imgs/pause.png" alt="정지" />
-                  : <img className="controlImg" src="/imgs/play.png" alt="재생" />
-                }
-              </button>
-            </div>
-          </div>
+          {/* Weekly Trends */}
+          {trendRecomdProd.length === 3 && (
+            <motion.section className="scrollSection" variants={container} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
+              <motion.h2 className="sectionTitle" variants={fadeUp}>Weekly Trends</motion.h2>
+              <motion.p className="sectionDesc" variants={fadeUp}>이번 주 트렌드를 반영한 인기 상품이에요.</motion.p>
+              <motion.div className="imageGrid" variants={container}>
+                {trendRecomdProd.map((item) => (
+                  <motion.div key={item.prodId} className="imgCard" variants={fadeUp}>
+                    <Link to={`/proddetail/${item.prodId}?userId=${userId}`} className="hoverOverlayWrapper">
+                      <img src={`http://localhost:8081/images/${item.prodImg}.jpg`} alt={item.prodId} />
+                      <div className="hoverOverlay">
+                        <span className="hoverText">Detail →</span>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.section>
+          )}
         </>
       )}
     </div>
+  );
+};
 
-  )
-}
-
-export default MainRecomdProd
+export default MainRecomdProd;

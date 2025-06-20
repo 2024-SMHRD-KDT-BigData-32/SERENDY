@@ -6,6 +6,7 @@ const AllProd = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  const userId = localStorage.getItem("userId");
 
   const category = queryParams.get("category");
   const subCategory = queryParams.get("subCategory");
@@ -150,11 +151,13 @@ const AllProd = () => {
                 className="prodImg"
                 src={`http://localhost:8081/images/${product.prodImg}.jpg`}
                 alt="상품 이미지"
+                onClick={() => {
+                  navigate(`/proddetail/${product.prodId}?userId=${userId}`);
+                }}
               />
               <button
                 className="detailBtn"
                 onClick={() => {
-                  const userId = localStorage.getItem("userId");
                   navigate(`/proddetail/${product.prodId}?userId=${userId}`);
                 }}
               >

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import '../css/ProdDetail.css';
-import { useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const ProdDetail = () => {
@@ -13,6 +13,8 @@ const ProdDetail = () => {
   const [selected, setSelected] = useState(null);
   const initialFeedbackRef = useRef(null);
   const latestSelectedRef = useRef(null);
+
+  const [simProducs, setSimProducs] = useState([])
 
   const handleSelect = (type) => {
     setSelected(prev => {
@@ -28,7 +30,10 @@ const ProdDetail = () => {
         const productRes = await axios.get(`/api/products/${id}`, {
           params: { userId }
         });
-        setProductData(productRes.data);
+        setProductData(productRes.data.product)
+        console.log(productRes.data.product)
+        setSimProducs(productRes.data.similar);
+        console.log(productRes.data.similar)
 
         const feedbackRes = await axios.get(`/api/products/feedbackStatus`, {
           params: {
@@ -112,40 +117,66 @@ const ProdDetail = () => {
   };
 
   return (
-    <div className="pdContainer">
-      <img src={`http://localhost:8081/images/${productData.prodImg}.jpg`} alt="상품 이미지" className="prodDetailImg" />
-      <div className="prodDetailInfo">
-        <div className="pdTitleRow">
-          <h2>Style.
-            <span> {productData.styleCode}</span>
-          </h2>
-          <div className="likeDislikeBtn">
-            <button
-              className={selected === 'LIKE' ? 'selected' : ''}
-              onClick={() => handleSelect('LIKE')}
-            >
-              <img src="/imgs/signLike.png" alt="좋아요" className="likeBtn" />
-            </button>
-            <button
-              className={selected === 'DISLIKE' ? 'selected' : ''}
-              onClick={() => handleSelect('DISLIKE')}
-            >
-              <img src="/imgs/signDislike.png" alt="싫어요" className="dislikeBtn" />
-            </button>
+    <>
+      <div className="pdContainer">
+        <img src={`http://localhost:8081/images/${productData.prodImg}.jpg`} alt="상품 이미지" className="prodDetailImg" />
+        <div className="prodDetailInfo">
+          <div className="pdTitleRow">
+            <h2>Style.
+              <span> {productData.styleCode}</span>
+            </h2>
+            <div className="likeDislikeBtn">
+              <button
+                className={selected === 'LIKE' ? 'selected' : ''}
+                onClick={() => handleSelect('LIKE')}
+              >
+                <img src="/imgs/signLike.png" alt="좋아요" className="likeBtn" />
+              </button>
+              <button
+                className={selected === 'DISLIKE' ? 'selected' : ''}
+                onClick={() => handleSelect('DISLIKE')}
+              >
+                <img src="/imgs/signDislike.png" alt="싫어요" className="dislikeBtn" />
+              </button>
+            </div>
           </div>
+
+          {Object.entries(attributes)
+            .filter(([_, value]) => value !== '')
+            .map(([key, value]) => (
+              <div className="attributeRow" key={key}>
+                <div>{key}</div>
+                <div className="pdDots" />
+                <div>{value}</div>
+              </div>
+            ))}
         </div>
 
-        {Object.entries(attributes)
-          .filter(([_, value]) => value !== '')
-          .map(([key, value]) => (
-            <div className="attributeRow" key={key}>
-              <div>{key}</div>
-              <div className="pdDots" />
-              <div>{value}</div>
-            </div>
-          ))}
       </div>
-    </div>
+
+      {simProducs.length > 0 && (
+        <div className="similarSection">
+          <h3 className="similarTitle">이 상품을 본 고객들이 함께 본 상품</h3>
+          <div className="similarList">
+            {simProducs.map((prod) => (
+              <div key={prod.prodId} className="similarItem">
+                <Link to={`/proddetail/${prod.prodId}?userId=${userId}`} className="hoverOverlayWrapper">
+                  <img
+                    src={`http://localhost:8081/images/${prod.prodImg}.jpg`}
+                    alt={`상품 ${prod.prodId}`}
+                    className="similarImg"
+                  />
+                  <div className="hoverOverlay">
+                    <span className="hoverText">Detail →</span>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+    </>
   );
 };
 

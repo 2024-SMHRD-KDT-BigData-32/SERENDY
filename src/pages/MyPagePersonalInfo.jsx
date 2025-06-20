@@ -145,10 +145,10 @@ const MyPage = () => {
             onChange={(e) => setUserInfo({ ...userInfo, ageGroup: e.target.value })}
           >
             <option value="" disabled>연령대 선택</option>
-            <option value="20">20대</option>
-            <option value="30">30대</option>
-            <option value="40">40대</option>
-            <option value="50">50대</option>
+            <option value="20대">20대</option>
+            <option value="30대">30대</option>
+            <option value="40대">40대</option>
+            <option value="50대">50대</option>
           </select>
 
           <div className='myPageGender'>
@@ -182,7 +182,6 @@ const MyPage = () => {
           <button onClick={deleteUser} className='delUserBtn'>회원탈퇴</button>
 
         </div>
-
 
       </div>
     </div>

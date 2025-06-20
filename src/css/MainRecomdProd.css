@@ -1,81 +1,108 @@
-.mrpContainer {
+.scrollWrapper {
   width: 100%;
+  padding: 60px 0;
+}
+
+.loadingBox {
   height: 100vh;
-  padding-top: 60px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  box-sizing: border-box;
-  text-align: center;
-  overflow: hidden;
+  align-items: center;
+  font-size: 18px;
+  color: #555;
 }
 
 .mrpTitle {
-  margin-top: -100px;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 50px;
   font-weight: 800;
   font-family: 'Abhaya Libre';
-  overflow: hidden;
-  animation: slideup 0.5s linear forwards;
 }
 
-.mrpSubtitle {
-  color: #727272;
-  font-size: 13px;
-  font-weight: 400;
+.scrollSection {
+  padding: 80px 20px;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-/* 캐러셀 래퍼 */
-.carouselWrapper {
+.sectionTitle {
+  font-size: 30px;
+  font-weight: 700;
+  font-family: 'Abhaya Libre';
+  margin-bottom: 8px;
+}
+
+.sectionDesc {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 32px;
+}
+
+.imageGrid, .bestImageRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.bestImageRow {
   position: relative;
-  overflow: hidden;
-  width: 100%;
-  padding-top: 60px;
+  padding-bottom: 50px;
 }
 
-.viewAll {
+.moreLinkWrapper {
   position: absolute;
-  right: 15px;
-  top: 30px;
-  color: #3c3c3c;
-  font-size: 15px;
+  bottom: 10px;
+  right: 0;
+}
+
+.moreLink {
+  font-size: 14px;
   font-weight: 500;
+  color: #333;
+  padding: 6px 14px;
 }
 
-.viewAll:hover {
-  color: #666;
-  border-color: #666;
+.moreLink:hover {
+  font-weight: 600;
 }
 
-/* 슬라이더 래퍼 */
-.sliderWrapper {
-  display: flex;
-}
-
-.sliderWrapper.transitioning {
-  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 캐러셀 아이템 */
-.carouselItem {
-  flex-shrink: 0;
-  width: calc(100%/ 5);
-}
-
-/* 아이템 이미지 */
-.itemImg {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  background-color: #e5e7eb;
-  border-radius: 10px;
-  margin: 0 10px;
+.imgCard {
   overflow: hidden;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
 }
 
-.itemImg img {
+.imgCard img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+  border-radius: 12px;
+}
+
+.imgCard:hover img {
+  transform: scale(1.05);
+}
+
+.bestSection {
+  background-color: #f6f6f6;
+  border-radius: 24px;
+  padding: 100px 20px;
+}
+
+.hoverOverlayWrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
 }
 
 .hoverOverlay {
@@ -84,76 +111,21 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(145, 145, 145, 0.8);
+  background-color: rgba(0,0,0,0.4);
   opacity: 0;
-  transition: opacity 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  /* z-index: 10; */
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
 }
 
 .hoverText {
   color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: underline dotted;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.itemImg:hover .hoverOverlay {
+.hoverOverlayWrapper:hover .hoverOverlay {
   opacity: 1;
-}
-
-/* 하단 컨트롤 영역 */
-.controlSection {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-/* 진행도 바 */
-.progressTrack {
-  flex: 1;
-  margin: 0 1rem;
-  background-color: #e5e7eb;
-  height: 0.25rem;
-  overflow: hidden;
-}
-
-.progressBar {
-  background-color: black;
-  height: 0.25rem;
-  transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 컨트롤 버튼 */
-.controlBtns {
-  display: flex;
-  margin-left: 10px;
-  gap: 1.5rem;
-}
-
-.controlBtn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.leftArrow,
-.rightArrow {
-  width: 15px;
-  height: 15px;
-}
-
-.rightArrow {
-  transform: rotate(180deg);
-}
-
-.controlImg{
-  width: 15px;
-  height: 15px;
 }

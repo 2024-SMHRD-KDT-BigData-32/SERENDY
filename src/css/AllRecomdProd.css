@@ -176,7 +176,6 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  cursor: pointer;
 }
 
 .productCard.editable::after {
@@ -240,6 +239,7 @@
   margin-bottom: 15px;
   overflow: hidden;
   object-fit: cover;
+  cursor: pointer;
 }
 
 .detailBtn {
@@ -276,7 +276,6 @@
   margin-left: auto;
 }
 
-/* 페이지네이션 스타일 */
 .pageNav {
   display: flex;
   justify-content: center;
