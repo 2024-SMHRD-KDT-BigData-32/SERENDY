@@ -15,7 +15,7 @@ const StyleChoose = () => {
 
   const styleData = [
     {
-      name: "트래디셔널",
+      name: "트레디셔널",
       description: "고전적인 실루엣과 정제된 분위기를\n중시하는 전통적인 스타일",
       image: "/imgs/styleImgs/traditional.jpg"
     },
@@ -96,10 +96,20 @@ const StyleChoose = () => {
           throw new Error('서버 응답 실패');
         }
 
-        alert("스타일 선택이 완료되었습니다. 추천 상품을 확인해보세요!")
+        const tempId = localStorage.getItem('tempId');
+        const userId = localStorage.getItem('userId');
+
+        if (tempId) {
+          alert("스타일 선택이 완료되었습니다. 로그인 후 추천 상품을 확인해보세요!");
+          navigate('/');
+        } else if (userId) {
+          alert("스타일 선택이 완료되었습니다. 새로운 추천 상품을 확인해보세요!");
+          navigate('/');
+        }
+
         localStorage.removeItem('tempId');
         localStorage.removeItem('allowStyleChoose');
-        navigate('/login');
+
       } catch (error) {
         console.error(error);
         alert('스타일 저장 중 오류가 발생했습니다.');

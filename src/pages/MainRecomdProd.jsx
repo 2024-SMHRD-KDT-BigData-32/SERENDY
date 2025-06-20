@@ -37,7 +37,7 @@ const MainRecomdProd = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [all, style, click, trend, userStyle] = await Promise.all([
+        const [allRes, styleRes, clickRes, trendRes, userStyleRes] = await Promise.all([
           axios.get(`/api/recommend/${userId}`),
           axios.post(`/api/recommend/cbf/all?userId=${userId}`),
           axios.post(`/api/recommend/ctrAll?userId=${userId}`),
@@ -45,11 +45,41 @@ const MainRecomdProd = () => {
           axios.get(`/api/users/getStylePref/${userId}`)
         ]);
 
-        setAllRecomdProd(all.data.slice(0, 3));
-        setStyleRecomdProd(style.data.slice(0, 3));
-        setClickRecomdProd(click.data.slice(0, 3));
-        setTrendRecomdProd(trend.data.slice(0, 3));
-        setUserStyle(userStyle.data);
+        const allData = allRes.data;
+        const styleData = styleRes.data;
+        const clickData = clickRes.data;
+        const trendData = trendRes.data;
+
+        const usedProdIds = new Set();
+
+        const pickUniqueItems = (sourceList, count) => {
+          const result = [];
+          for (let item of sourceList) {
+            if (!usedProdIds.has(item.prodId)) {
+              result.push(item);
+              usedProdIds.add(item.prodId);
+            }
+            if (result.length === count) break;
+          }
+          return result;
+        };
+
+        const selectedAll = pickUniqueItems(allData, 3);
+        const selectedStyle = pickUniqueItems(styleData, 3);
+        const selectedClick = pickUniqueItems(clickData, 3);
+
+        const trendCandidates = pickUniqueItems(trendData, trendData.length);
+        const selectedTrend = trendCandidates.sort(() => Math.random() - 0.5).slice(0, 3);
+
+        setAllRecomdProd(selectedAll);
+        setStyleRecomdProd(selectedStyle);
+        setClickRecomdProd(selectedClick);
+        setTrendRecomdProd(selectedTrend);
+        setUserStyle(userStyleRes.data);
+
+        console.log(styleRes.data)
+        console.log(clickRes.data)
+
       } catch (err) {
         console.error('에러 정보', err);
       } finally {

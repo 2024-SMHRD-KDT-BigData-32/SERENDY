@@ -32,7 +32,7 @@ const Login = () => {
       if (response.data === "로그인 성공") {
         console.log(response.data)
         localStorage.setItem("userId", formData.id);
-        navigate('/test');
+        navigate('/');
       } else {
         console.log(response.data)
         alert('아이디 또는 비밀번호가 일치하지 않습니다.');
