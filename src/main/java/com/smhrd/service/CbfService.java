@@ -6,6 +6,6 @@ import com.smhrd.DTO.CbfProdResponse;
 
 public interface CbfService {
 
-	List<CbfProdResponse> recommendProductsByStyle(List<String> preferredStyles, List<Integer> dislikedProdIds);
+	List<CbfProdResponse> recommendProductsByStyle(List<String> preferredStyles, List<Integer> dislikedProdIds, int limit);
 	
 }

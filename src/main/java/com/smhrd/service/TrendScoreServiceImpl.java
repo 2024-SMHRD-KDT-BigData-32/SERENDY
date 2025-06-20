@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smhrd.DTO.TrendScoreDto;
+import com.smhrd.entity.ProductInfo;
+import com.smhrd.repository.ProductInfoRepository;
 
 @Service
 public class TrendScoreServiceImpl implements TrendScoreService {
 
     private final RestClient restClient;
+    private final ProductInfoRepository productInfoRepository;
 
-    public TrendScoreServiceImpl(RestClient restClient) {
+    public TrendScoreServiceImpl(RestClient restClient, ProductInfoRepository productInfoRepository) {
         this.restClient = restClient;
+        this.productInfoRepository = productInfoRepository;
     }
 
     // 상품 후보군에 해당하는 trend_score top-50
@@ -109,8 +113,21 @@ public class TrendScoreServiceImpl implements TrendScoreService {
             dto.setTrend_score((float) source.path("trend_score").asDouble());
             result.add(dto);
         }
-
+        
         return result;
+    }
+    
+    
+    public List<ProductInfo> trendAllProd(List<TrendScoreDto> trendAll){
+    	
+    	List<Integer> trendProdIds = trendAll.stream()
+	             .map(TrendScoreDto::getProdId)
+	             .collect(Collectors.toList());
+    	
+    	
+    	List<ProductInfo> result = productInfoRepository.findByProdIdIn(trendProdIds);
+    	
+    	return result;
     }
 }
 

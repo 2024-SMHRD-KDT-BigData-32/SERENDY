@@ -23,17 +23,18 @@ public class CbfServiceImpl implements CbfService{
         this.cbfProdRepository = cbfProdRepository;
     }
 
-    public List<CbfProdResponse> recommendProductsByStyle(List<String> preferredStyles, List<Integer> dislikedProdIds) {
+    public List<CbfProdResponse> recommendProductsByStyle(List<String> preferredStyles, List<Integer> dislikedProdIds, int limit) {
         float[] userVector = buildUserVector(preferredStyles);
 
         try {
-            String queryJson = buildQueryJson(userVector, dislikedProdIds);
+            String queryJson = buildQueryJson(userVector, dislikedProdIds, limit);
             String responseJson = cbfProdRepository.searchSimilarProducts(queryJson);
-            return parseEsResponse(responseJson);
+            return parseEsResponse(responseJson, limit);
         } catch (IOException e) {
             throw new RuntimeException("Elasticsearch 검색 중 오류 발생", e);
         }
     }
+
 
     private float[] buildUserVector(List<String> preferredStyles) {
         String[] styleCodeList = { "트레디셔널", "매니시", "페미닌", "에스닉", "컨템포러리", "내추럴", "젠더플루이드", "스포티", "서브컬쳐", "캐주얼" };
@@ -48,7 +49,7 @@ public class CbfServiceImpl implements CbfService{
         return vector;
     }
 
-    private String buildQueryJson(float[] vector, List<Integer> dislikedProdIds) {
+    private String buildQueryJson(float[] vector, List<Integer> dislikedProdIds, int limit) {
         StringBuilder vectorSb = new StringBuilder("[");
         for (int i = 0; i < vector.length; i++) {
             vectorSb.append(vector[i]);
@@ -65,14 +66,14 @@ public class CbfServiceImpl implements CbfService{
 
         return """
         {
-          "size": 3000,
+          "size": %d,
           "query": {
             "bool": {
               "must": {
                 "knn": {
                   "style_vector": {
                     "vector": %s,
-                    "k": 3000
+                    "k": %d
                   }
                 }
               },
@@ -84,20 +85,20 @@ public class CbfServiceImpl implements CbfService{
             }
           }
         }
-        """.formatted(vectorSb.toString(), dislikedSb.toString());
+        """.formatted(limit, vectorSb.toString(), limit, dislikedSb.toString());
     }
 
 
-    private List<CbfProdResponse> parseEsResponse(String json) throws IOException {
+    private List<CbfProdResponse> parseEsResponse(String json, int limit) throws IOException {
         JsonNode root = objectMapper.readTree(json);
         JsonNode hits = root.path("hits").path("hits");
 
         List<CbfProdResponse> results = new ArrayList<>();
         for (JsonNode hit : hits) {
+            if (results.size() >= limit) break;
+
             JsonNode source = hit.get("_source");
             CbfProdResponse item = objectMapper.treeToValue(source, CbfProdResponse.class);
-
-            // _score는 _source 밖에 있으니 따로 읽어야 함
             float score = (float) hit.path("_score").asDouble(0.0);
             item.setScore(score);
 
@@ -106,4 +107,5 @@ public class CbfServiceImpl implements CbfService{
 
         return results;
     }
+
 }

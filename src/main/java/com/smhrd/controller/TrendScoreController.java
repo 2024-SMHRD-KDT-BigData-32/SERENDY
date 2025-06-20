@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smhrd.DTO.TrendScoreDto;
+import com.smhrd.entity.ProductInfo;
 import com.smhrd.service.TrendScoreService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,10 +48,14 @@ public class TrendScoreController {
 	 // 전체 상품 기준으로 trend_score 순으로 정렬
 	 @Operation(summary = "전체 상품 중 Trend Score Top-N", description = "이번주 트렌드 상품들")
 	 @GetMapping("/trend/all")
-	 public List<Integer> getTopTrendScoresAll(@RequestParam(defaultValue = "50") int size) {
-	     return trendScoreService.getTopTrendScoresAll(size).stream()
-	             .map(TrendScoreDto::getProdId)
-	             .collect(Collectors.toList());
+	 public List<ProductInfo> getTopTrendScoresAll(@RequestParam(defaultValue = "50") int size) {
+	     
+		 List<TrendScoreDto> trendProdsInfo = trendScoreService.getTopTrendScoresAll(size);
+		 
+		 List<ProductInfo> trendProds = trendScoreService.trendAllProd(trendProdsInfo);
+		 
+		 return trendProds;
+		 
 	 }
 
 
